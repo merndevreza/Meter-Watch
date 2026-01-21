@@ -27,7 +27,11 @@ export function proxy(request: NextRequest) {
   return NextResponse.next();
 }
 
-export const config = { 
+// Optional Middleware to keep the session alive to update the session expiry every time its called.
+export { auth as middleware } from "@/auth"
+
+// Specify the paths that will be processed by the middleware
+export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
