@@ -14,6 +14,7 @@ import {
   Field,
   FieldDescription,
 } from "@/components/ui/field"
+import { ResendSignInBtn } from "./_components/ResendSignInBtn";
 
 export default async function Page() {
 
@@ -34,6 +35,9 @@ export default async function Page() {
             </CardHeader>
             <CardContent>
               <LoginForm />
+              <Field className="mt-4">
+                <ResendSignInBtn />
+              </Field> 
               <Field className="mt-4">
                 <div className="flex justify-between gap-4">
                   <OAuthSignInBtn provider="google" />

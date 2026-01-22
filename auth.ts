@@ -3,6 +3,7 @@ import { MongoDBAdapter } from "@auth/mongodb-adapter"
 import CredentialProvider from "next-auth/providers/credentials"
 import Google from "next-auth/providers/google"
 import GitHub from "next-auth/providers/github"
+import Resend from "next-auth/providers/resend"
 import client from "@/database/services/mongoClient"
 import connectMongo from "./database/services/connectMongo"
 import { Users } from "./database/models/user-model"
@@ -13,40 +14,48 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
    session: {
       strategy: "jwt",
    },
-   providers: [Google, GitHub, CredentialProvider({
-      credentials: {
-         email: { type: "email" },
-         password: { type: "password" },
-      },
-      async authorize(credentials) {
-         if (!credentials?.email || !credentials?.password) {
-            throw new Error("Email and password are required");
-         }
-
-         await connectMongo();
-         try {
-            const foundUser = await Users.findOne({
-               email: (credentials.email as string).toLowerCase(),
-            }).lean();
-
-            if (!foundUser) {
-               throw new Error("User not found");
+   providers: [
+      Google,
+      GitHub,
+      Resend({
+         apiKey: process.env.AUTH_RESEND_KEY,
+         from: "onboarding@resend.dev", 
+      }),
+      CredentialProvider({
+         credentials: {
+            email: { type: "email" },
+            password: { type: "password" },
+         },
+         async authorize(credentials) {
+            if (!credentials?.email || !credentials?.password) {
+               throw new Error("Email and password are required");
             }
 
-            //  const isMatched = await bcrypt.compare(
-            //    credentials.password as string,
-            //    foundUser.password as string
-            //  );
-            const isMatched = credentials.password === foundUser.password;            
-            if (!isMatched) {
-               throw new Error("Email or password is incorrect");
-            }
+            await connectMongo();
+            try {
+               const foundUser = await Users.findOne({
+                  email: (credentials.email as string).toLowerCase(),
+               }).lean();
 
-            // Return user object with id field for NextAuth (convert _id to id)
-            return foundUser;
-         } catch (error) {
-            throw new Error(error instanceof Error ? error.message : String(error));
-         }
-      },
-   })],
+               if (!foundUser) {
+                  throw new Error("User not found");
+               }
+
+               //  const isMatched = await bcrypt.compare(
+               //    credentials.password as string,
+               //    foundUser.password as string
+               //  );
+               const isMatched = credentials.password === foundUser.password;
+               if (!isMatched) {
+                  throw new Error("Email or password is incorrect");
+               }
+
+               // Return user object with id field for NextAuth (convert _id to id)
+               return foundUser;
+            } catch (error) {
+               throw new Error(error instanceof Error ? error.message : String(error));
+            }
+         },
+      })
+   ],
 })

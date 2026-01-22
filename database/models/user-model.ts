@@ -19,15 +19,6 @@ const usersSchema = new Schema({
   image: {
     type: String,
   },
-  // Custom fields below
-  firstName: {
-    type: String,
-    trim: true,
-  },
-  lastName: {
-    type: String,
-    trim: true,
-  }, 
   password: {
     type: String,
     sparse: true,

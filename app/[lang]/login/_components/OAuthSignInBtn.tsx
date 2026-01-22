@@ -10,7 +10,7 @@ const OAuthSignInBtn = ({ provider }: OAuthSignInBtnProps) => {
       <form
          action={async () => {
             "use server"
-            await signIn(provider)
+            await signIn(provider, { redirectTo: "/dashboard" })
          }}
          className="w-full"
       >
