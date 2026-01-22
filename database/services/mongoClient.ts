@@ -9,7 +9,7 @@ const uri = process.env.MONGO_URI
 const options = {
   serverApi: {
     version: ServerApiVersion.v1,
-    strict: true,
+    strict: false,
     deprecationErrors: true,
   },
 }

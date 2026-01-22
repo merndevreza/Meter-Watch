@@ -1,3 +1,5 @@
+"use server"
+
 import mongoose from "mongoose";
 
 const MONGO_URI = process.env.MONGO_URI;
@@ -21,7 +23,7 @@ export default async function connectMongo() {
       // console.log("⏳ Creating new MongoDB connection...");
       const opt = {
          bufferCommands: false,
-         dbName: "MeterWatch",
+         dbName: "meter-watch",
       };
       cached.promise = mongoose.connect(MONGO_URI, opt);
    }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { match } from '@formatjs/intl-localematcher';
 import Negotiator from 'negotiator';
+// import { auth } from "@/auth";
 
 const defaultLocale = 'en'
 const locales = ['en', 'bn']
@@ -11,7 +12,12 @@ function getLocale(request: NextRequest): string {
   const languages = new Negotiator({ headers }).languages()
   return match(languages, locales, defaultLocale)
 }
-
+// export default auth((req) => {
+//   if (!req.auth && req.nextUrl.pathname !== "/login") {
+//     const newUrl = new URL("/login", req.nextUrl.origin)
+//     return Response.redirect(newUrl)
+//   }
+// })
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   const pathnameHasLocale = locales.some(
