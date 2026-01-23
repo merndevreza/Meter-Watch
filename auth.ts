@@ -19,7 +19,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       GitHub,
       Resend({
          apiKey: process.env.AUTH_RESEND_KEY,
-         from: "onboarding@resend.dev", 
+         from: "onboarding@resend.dev",
       }),
       CredentialProvider({
          credentials: {
@@ -41,11 +41,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                   throw new Error("User not found");
                }
 
-               //  const isMatched = await bcrypt.compare(
-               //    credentials.password as string,
-               //    foundUser.password as string
-               //  );
-               const isMatched = credentials.password === foundUser.password;
+               const isMatched = await bcrypt.compare(
+                  credentials.password as string,
+                  foundUser.password as string
+               );
                if (!isMatched) {
                   throw new Error("Email or password is incorrect");
                }
@@ -58,4 +57,25 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
          },
       })
    ],
+   callbacks: {
+      async signIn({ user, account, profile }) {
+         // If the user is logging in via OAuth (Google/GitHub)
+         if (account?.provider !== "credentials" && account?.provider !== "resend") {
+            // Most OAuth providers return a 'email_verified' boolean in the profile
+            const isEmailVerified = profile?.email_verified || profile?.verified || true;
+
+            if (isEmailVerified && !user.emailVerified) {
+               return true;
+            }
+         }
+         return true;
+      },
+   },
+   events: {
+      async linkAccount({ user }) {
+         // update the user emailVerified as Google verified them
+         await connectMongo();
+         await Users.findByIdAndUpdate(user.id, { emailVerified: new Date() });
+      },
+   }
 })

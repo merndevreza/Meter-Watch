@@ -23,6 +23,9 @@ const usersSchema = new Schema({
     type: String,
     sparse: true,
   },
+  verificationToken: {
+    type: String, 
+  },
 }
 );
 
