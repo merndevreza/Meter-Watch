@@ -49,7 +49,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                   throw new Error("Email or password is incorrect");
                }
 
-               // Return user object with id field for NextAuth (convert _id to id)
                return foundUser;
             } catch (error) {
                throw new Error(error instanceof Error ? error.message : String(error));
@@ -58,10 +57,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       })
    ],
    callbacks: {
+      // Adding emailVerified to session
+      async jwt({ token, user }) {
+         if (user) {
+            token.emailVerified = user.emailVerified;
+         }
+         return token;
+      },
+      async session({ session, token }) {
+         if (session.user) {
+            (session.user as any).emailVerified = token.emailVerified;
+         }
+         return session;
+      },
       async signIn({ user, account, profile }) {
          // If the user is logging in via OAuth (Google/GitHub)
          if (account?.provider !== "credentials" && account?.provider !== "resend") {
-            // Most OAuth providers return a 'email_verified' boolean in the profile
             const isEmailVerified = profile?.email_verified || profile?.verified || true;
 
             if (isEmailVerified && !user.emailVerified) {
