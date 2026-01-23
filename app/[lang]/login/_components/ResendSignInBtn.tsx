@@ -5,7 +5,7 @@ export function ResendSignInBtn() {
     <form
       action={async (formData) => {
         "use server"
-        await signIn("resend", formData, { redirectTo: "/dashboard" })
+        await signIn("resend", formData, { redirectTo: "/" })
       }}
     >
       <input type="text" name="email" placeholder="Email" />

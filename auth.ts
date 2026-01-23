@@ -19,7 +19,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       GitHub,
       Resend({
          apiKey: process.env.AUTH_RESEND_KEY,
-         from: "onboarding@resend.dev",
+         from: "onboarding@resend.dev", 
       }),
       CredentialProvider({
          credentials: {

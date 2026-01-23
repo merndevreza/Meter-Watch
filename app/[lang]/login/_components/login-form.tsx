@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export function LoginForm() {
+export function LoginForm({lang}: {lang: "en" | "bn"}) {
   const [error, setError] = useState("");
   const router=useRouter();
 
@@ -23,7 +23,7 @@ export function LoginForm() {
       if (response.error) {
         setError(response.error);
       } else if (response.success) {
-        router.push("/en/dashboard");
+        router.push(`/${lang}`);
       }
     } catch (error) {
       console.log(error); 
