@@ -13,7 +13,7 @@ export const POST = async (request: Request) => {
    const reqBody = await request.json();
    console.log("reqBody", reqBody);
    
-   const { meterNumber, sanctionLoad, sanctionTariff, meterType, meterInstallationDate } = reqBody;
+   const { meterName, meterNumber, sanctionLoad, sanctionTariff, meterType, meterInstallationDate, minimumRechargeThreshold } = reqBody;
    try {
       await connectMongo();
       const alreadyExists = await Meters.findOne({ meterNumber });
@@ -23,11 +23,15 @@ export const POST = async (request: Request) => {
          return NextResponse.json({ success: false, message: "Meter already exists", status: 409 });
       }
       const newMeter = {
+         meterName,
          meterNumber,
          sanctionLoad,
          sanctionTariff,
          meterType,
          meterInstallationDate,
+         minimumRechargeThreshold,
+         currentBalance: 0,
+         meterStatus: "active",
          createdAt: new Date(),
          createdBy: session.user.email,
          meterOwner: session.user.id,

@@ -1,42 +1,60 @@
 import mongoose, { Schema } from "mongoose";
- 
+
 const meterSchema = new Schema({
-   meterNumber:{
+   meterName: {
+      type: String,
+      required: true, 
+   },
+   meterNumber: {
       type: Number,
       required: true,
       unique: true,
    },
-   sanctionLoad:{
+   sanctionLoad: {
       type: Number,
       required: true,
    },
-   sanctionTariff:{
+   sanctionTariff: {
       type: String,
       required: true,
    },
-   meterType:{
+   meterType: {
       type: String,
       required: true,
    },
-   meterInstallationDate:{
+   meterStatus: {
+      type: String,
+      required: true,
+   },
+   minimumRechargeThreshold: {
+      type: Number,
+      required: true,
+   },
+   currentBalance: {
+      type: Number,
+      default: 0, 
+   },
+   meterInstallationDate: {
       type: Date,
       required: true,
       default: Date.now,
    },
-   createdAt:{
+   createdAt: {
       type: Date,
       default: Date.now,
    },
-   createdBy:{
+   createdBy: {
       type: String,
       ref: "Users",
       required: true,
    },
-   meterOwner:{
+   meterOwner: {
       type: Schema.Types.ObjectId,
       ref: "Users",
       required: true,
    },
-})
+}, { timestamps: true });
+
+
 export const Meters =
-  mongoose.models.Meters ?? mongoose.model("Meters", meterSchema);
+   mongoose.models.Meters ?? mongoose.model("Meters", meterSchema);

@@ -27,10 +27,12 @@ const AddEditMeterForm = () => {
    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       const formData = new FormData(e.currentTarget);
+      const meterName = formData.get("meter-name") as string;
       const meterNumber = formData.get("meter-number") as string;
       const sanctionLoad = formData.get("sanction-load") as string;
       const sanctionTariff = formData.get("sanction-tariff") as string;
       const meterType = formData.get("meter-type") as string;
+      const minimumRechargeThreshold = formData.get("minimum-recharge-threshold") as string;
       const meterInstallationDate = formData.get("meter-installation-date") as string;
       try {
          const response = await fetch("/api/meter", {
@@ -39,11 +41,13 @@ const AddEditMeterForm = () => {
                "Content-Type": "application/json",
             },
             body: JSON.stringify({
+               meterName,
                meterNumber,
                sanctionLoad,
                sanctionTariff,
                meterType,
-               meterInstallationDate
+               minimumRechargeThreshold,
+               meterInstallationDate,
             }),
          });
          const result = await response.json();
@@ -57,7 +61,6 @@ const AddEditMeterForm = () => {
       } catch (error) {
          setError("Failed to add meter");
       }
-
    }
    return (
       <Card>
@@ -73,12 +76,16 @@ const AddEditMeterForm = () => {
             <form onSubmit={handleSubmit}>
                <FieldGroup>
                   <Field>
+                     <FieldLabel htmlFor="meter-name">Meter Name</FieldLabel>
+                     <Input id="meter-name" type="text" name="meter-name" required />
+                  </Field>
+                  <Field>
                      <FieldLabel htmlFor="meter-number">Meter No.</FieldLabel>
                      <Input id="meter-number" type="number" name="meter-number" required />
                   </Field>
                   <Field>
                      <FieldLabel htmlFor="sanction-load">Sanction Load (K.W)</FieldLabel>
-                     <Input id="sanction-load" type="number" name="sanction-load" required />
+                     <Input id="sanction-load" type="number" name="sanction-load" min={0} required />
                   </Field>
                   <Field>
                      <FieldLabel htmlFor="sanction-tariff">Sanction Tariff</FieldLabel>
@@ -105,6 +112,10 @@ const AddEditMeterForm = () => {
                            </SelectItem>
                         </SelectContent>
                      </Select>
+                  </Field>
+                  <Field>
+                     <FieldLabel htmlFor="minimum-recharge-threshold">Set Minimum Recharge Threshold (TK)</FieldLabel>
+                     <Input id="minimum-recharge-threshold" type="number" name="minimum-recharge-threshold" min={0} required />
                   </Field>
                   <Field>
                      <FieldLabel htmlFor="meter-installation-date">Meter Installation Date</FieldLabel>
