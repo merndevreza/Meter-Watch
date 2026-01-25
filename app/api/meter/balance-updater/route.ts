@@ -12,14 +12,14 @@ export const PUT = async (request: Request) => {
    const reqBody = await request.json();
    console.log("reqBody", reqBody);
 
-   const { mongoId, currentBalance, rechargeAmount } = reqBody;
+   const { mongoId, newBalance } = reqBody;
    try {
       await connectMongo();
       const updateResult = await Meters.updateOne(
          { _id: mongoId, meterOwner: session.user.id },
          {
             $set: {
-               currentBalance: currentBalance + rechargeAmount,
+               currentBalance: newBalance,
                updatedAt: new Date(),
             },
          }

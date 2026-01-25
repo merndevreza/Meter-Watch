@@ -4,9 +4,10 @@ export interface ModalPortalProps {
     className?: string;
 }
 
-export type RechargeMeterModalProps = {
+export type BalanceUpdaterModalProps = {
     currentBalance: number;
     mongoId: string;
-    onRechargeMeter: (mongoId: string, newBalance: number) => void;
-    setShowRechargeModal: (state: boolean) => void;
-};
+    onBalanceUpdate: (mongoId: string, newBalance: number) => void;
+    setShowModal: (state: boolean) => void;
+    modalType: "recharge" | "balance-use"
+};  

@@ -17,7 +17,7 @@ export type MeterDataType = {
 
 export type MeterCardButtonsProps = {
    onDeleteMeter: (mongoId: string) => void;
-   onRechargeMeter: (mongoId: string, newBalance: number) => void;
+   onBalanceUpdate: (mongoId: string, newBalance: number) => void;
    meterCurrentBalance: number;
    mongoId: string;
    isActive: boolean;

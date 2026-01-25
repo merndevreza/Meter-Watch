@@ -7,29 +7,31 @@ import {
 } from "@/components/ui/field";
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { RechargeMeterModalProps } from '@/types/modal';
+import { BalanceUpdaterModalProps } from '@/types/modal';
 
-const RechargeMeterModal = ({ currentBalance, mongoId, onRechargeMeter, setShowRechargeModal }: RechargeMeterModalProps) => {
-   const [balance, setBalance] = useState(currentBalance);
+const BalanceUpdaterModal = ({ currentBalance, mongoId, onBalanceUpdate, setShowModal, modalType }: BalanceUpdaterModalProps) => {
+   const [balance, setBalance] = useState<number>(currentBalance);
 
    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       const formData = new FormData(e.currentTarget);
-      const rechargeAmount = formData.get("recharge-amount");
+      const amount = formData.get("amount");
+      const newBalance = modalType === "recharge" ? balance + Number(amount) : balance - Number(amount)
       try {
-         const response = await fetch('/api/meter/recharge', {
+         const response = await fetch('/api/meter/balance-updater', {
             method: 'PUT',
             headers: {
                'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ mongoId, currentBalance, rechargeAmount }),
+            body: JSON.stringify({ mongoId, newBalance }),
          });
          if (response.status === 200) {
-           setBalance(prev => prev + Number(rechargeAmount));
-           onRechargeMeter(mongoId, balance + Number(rechargeAmount));
-           setTimeout(() => {
-            setShowRechargeModal(false);
-           }, 1000);
+            setBalance(newBalance);
+            onBalanceUpdate(mongoId, newBalance);
+
+            setTimeout(() => {
+               setShowModal(false);
+            }, 1000);
          }
       } catch (error) {
          console.log("recharge error", error);
@@ -43,18 +45,20 @@ const RechargeMeterModal = ({ currentBalance, mongoId, onRechargeMeter, setShowR
          <form onSubmit={handleSubmit}>
             <FieldGroup>
                <Field>
-                  <FieldLabel htmlFor="recharge-amount">Recharge Amount</FieldLabel>
+                  <FieldLabel htmlFor="amount">{modalType === "recharge" ? "Recharge Balance" : "Use Balance"}</FieldLabel>
                   <Input
-                     id="recharge-amount"
+                     id="amount"
                      type="number"
-                     name="recharge-amount"
+                     name="amount"
+                     min={0}
+                     max={modalType === "balance-use" ? currentBalance : undefined}
                      required
                   />
                </Field>
 
                <FieldGroup>
                   <Button type="submit">
-                     Add Money
+                     {modalType === "recharge" ? "Add money" : "Use Money"}
                   </Button>
                </FieldGroup>
             </FieldGroup>
@@ -63,4 +67,4 @@ const RechargeMeterModal = ({ currentBalance, mongoId, onRechargeMeter, setShowR
    );
 };
 
-export default RechargeMeterModal;
+export default BalanceUpdaterModal;

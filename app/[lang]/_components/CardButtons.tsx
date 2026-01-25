@@ -4,11 +4,12 @@ import { Button } from '@/components/ui/button';
 import { MeterCardButtonsProps } from '@/types/meter-type';
 import { BanknoteArrowDown, BanknoteArrowUp, SquarePen, Trash } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
-import RechargeMeterModal from './RechargeMeterModal';
+import { useState } from 'react'; 
+import BalanceUpdaterModal from './BalanceUpdaterModal';
 
-const CardButtons = ({ meterCurrentBalance, mongoId, onDeleteMeter, onRechargeMeter, isActive }: MeterCardButtonsProps) => {
+const CardButtons = ({ meterCurrentBalance, mongoId, onDeleteMeter, onBalanceUpdate, isActive }: MeterCardButtonsProps) => {
    const [showRechargeModal, setShowRechargeModal] = useState(false);
+   const [showBalanceUseModal, setShowBalanceUseModal] = useState(false);
 
    const handleDeleteMeter = async () => {
       try {
@@ -36,7 +37,7 @@ const CardButtons = ({ meterCurrentBalance, mongoId, onDeleteMeter, onRechargeMe
             <BanknoteArrowUp className="h-5 w-5" />
             Recharge
          </Button>
-         <Button disabled={meterCurrentBalance <= 0} variant="secondary" className="flex-1 h-11 gap-2 text-sm font-bold active:scale-95 transition-transform">
+         <Button onClick={() => setShowBalanceUseModal(true)} disabled={meterCurrentBalance <= 0} variant="secondary" className="flex-1 h-11 gap-2 text-sm font-bold active:scale-95 transition-transform">
             <BanknoteArrowDown className="h-5 w-5" />
             Usage
          </Button>
@@ -51,9 +52,9 @@ const CardButtons = ({ meterCurrentBalance, mongoId, onDeleteMeter, onRechargeMe
             </Button>
          </div>
          {
-            showRechargeModal && (
-               <ModalPortal setShowModal={setShowRechargeModal}>
-                  <RechargeMeterModal setShowRechargeModal={setShowRechargeModal} onRechargeMeter={onRechargeMeter} mongoId={mongoId} currentBalance={meterCurrentBalance} />
+            (showRechargeModal || showBalanceUseModal) && (
+               <ModalPortal setShowModal={showRechargeModal ? setShowRechargeModal : setShowBalanceUseModal}>
+                  <BalanceUpdaterModal setShowModal={showRechargeModal ? setShowRechargeModal : setShowBalanceUseModal} onBalanceUpdate={onBalanceUpdate} mongoId={mongoId} currentBalance={meterCurrentBalance} modalType={showRechargeModal ? "recharge" : "balance-use"} />
                </ModalPortal>
             )
          }
