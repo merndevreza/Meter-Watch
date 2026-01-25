@@ -14,7 +14,7 @@ import { MeterDataType } from '@/types/meter-type';
 import CardButtons from './CardButtons';
 import { useState } from "react";
 
-const MeterCardsWrapper = ({ metersData }: { metersData: MeterDataType[] }) => {
+const MeterCardsWrapper = ({ metersData=[] }: { metersData: MeterDataType[] | [] }) => {
    const [allMeters, setAllMeters] = useState<MeterDataType[]>(metersData);
 
    const getMeterTypeText = (type: string) => {

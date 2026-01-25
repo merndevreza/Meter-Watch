@@ -38,7 +38,7 @@ const CardButtons = ({ meterCurrentBalance, mongoId, onDeleteMeter, isActive }: 
             Usage
          </Button>
          <div className="flex gap-2 w-full sm:w-auto">
-            <Link href={`/dashboard/add-edit-meter?id=${mongoId}`}>
+            <Link href={`/add-edit-meter?id=${mongoId}`}>
                <Button variant="outline" size="icon" className="h-11 w-11 flex-1 sm:flex-none border-muted-foreground/20 hover:bg-accent">
                   <SquarePen className="h-5 w-5" />
                </Button>

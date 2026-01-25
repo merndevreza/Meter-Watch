@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/sidebar"
 import { fetchUserMeters } from '../actions/meter';
 import MeterCardsWrapper from './_components/MeterCardsWrapper';
+import { MeterDataType } from '@/types/meter-type';
 
 export default async function Overview({ params }: { params: Promise<{ lang: "en" | "bn" }> }) {
   const { lang } = await params;
@@ -38,7 +39,7 @@ export default async function Overview({ params }: { params: Promise<{ lang: "en
       <SidebarInset>
         <SiteHeader />
         <div className='py-4 md:py-6'>
-          <MeterCardsWrapper metersData={meters.data} />
+          <MeterCardsWrapper metersData={(meters.success ? meters.data : []) as MeterDataType[]} />
         </div>
       </SidebarInset>
     </SidebarProvider>
