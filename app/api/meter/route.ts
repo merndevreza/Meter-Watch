@@ -3,22 +3,20 @@ import { Meters } from "@/database/models/meter-model";
 import connectMongo from "@/database/services/connectMongo";
 import { NextResponse } from "next/server";
 
+// Add New Meter
 export const POST = async (request: Request) => {
-   const session = await auth();
-   console.log("session", session);
-   
+   const session = await auth(); 
+
    if (!session?.user?.emailVerified) {
       return NextResponse.json({ success: false, message: "Unauthorized", status: 401 });
    }
-   const reqBody = await request.json();
-   console.log("reqBody", reqBody);
-   
+   const reqBody = await request.json(); 
+
    const { meterName, meterNumber, sanctionLoad, sanctionTariff, meterType, meterInstallationDate, minimumRechargeThreshold } = reqBody;
    try {
       await connectMongo();
-      const alreadyExists = await Meters.findOne({ meterNumber });
-      console.log("alreadyExists", alreadyExists);
-      
+      const alreadyExists = await Meters.findOne({ meterNumber }); 
+
       if (alreadyExists) {
          return NextResponse.json({ success: false, message: "Meter already exists", status: 409 });
       }
@@ -35,14 +33,34 @@ export const POST = async (request: Request) => {
          createdAt: new Date(),
          createdBy: session.user.email,
          meterOwner: session.user.id,
-      }
-      console.log("newMeter", newMeter);
-
+      }  
       await Meters.create(newMeter);
       return NextResponse.json({ success: true, message: "Meter added successfully", status: 201 });
    } catch (error) {
       console.log(error);
-      
       return NextResponse.json({ success: false, message: "Failed to add meter", status: 500 });
+   }
+}
+
+// Delete Meter
+export const DELETE = async (request: Request) => {
+   const session = await auth(); 
+   if (!session?.user?.emailVerified) {
+      return NextResponse.json({ success: false, message: "Unauthorized", status: 401 });
+   }
+   const reqBody = await request.json(); 
+   const { mongoId } = reqBody; 
+
+   try {
+      await connectMongo();
+      const deletionResult = await Meters.deleteOne({ _id: mongoId, meterOwner: session.user.id }); 
+
+      if (deletionResult.deletedCount === 0) {
+         return NextResponse.json({ success: false, message: "Meter not found or you do not have permission to delete it.", status: 404 });
+      }
+      return NextResponse.json({ success: true, message: "Meter deleted successfully", status: 200 });
+   } catch (error) {
+      console.log(error);
+      return NextResponse.json({ success: false, message: "Failed to delete meter", status: 500 });
    }
 }

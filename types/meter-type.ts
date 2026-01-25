@@ -14,3 +14,9 @@ export type MeterDataType = {
    meterOwner?: string;
    updatedAt?: string;
 }
+
+export type MeterCardButtonsProps = {
+   onDeleteMeter: (mongoId: string) => void;
+   meterCurrentBalance: number;
+   mongoId: string;
+}

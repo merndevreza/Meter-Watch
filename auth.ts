@@ -58,10 +58,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
    ],
    callbacks: {
       // Adding emailVerified to session
-      async jwt({ token, user }) {
-         console.log("token", token);
-         console.log("user", user);
-
+      async jwt({ token, user }) { 
          if (user) { 
             token.emailVerified = user.emailVerified;
          }
