@@ -21,10 +21,20 @@ export default async function Overview({ params }: { params: Promise<{ lang: "en
   console.log("session", session);
   const meters = await fetchUserMeters();
   console.log("meters.data", meters.data);
-
+  
   if (!session?.user?.emailVerified) {
     redirect(`/${lang}/login`);
   }
+
+// const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/cron`, {
+//     headers: {
+//       'Authorization': `Bearer ${process.env.CRON_SECRET}`,
+//     },
+//     cache: 'no-store', // Ensure it doesn't cache the result
+//   });
+
+//   const data = await response.json();
+// console.log("data", data);
 
   return (
     <SidebarProvider

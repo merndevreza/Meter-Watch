@@ -14,7 +14,7 @@ export const POST = async (request: Request) => {
 
       const existingUser = await Users.findOne({ email: email.toLowerCase() });
 
-      if (existingUser) { 
+      if (existingUser) {
          if (existingUser.emailVerified) {
             return NextResponse.json({
                success: false,
@@ -28,11 +28,11 @@ export const POST = async (request: Request) => {
                success: false,
                message: "This email is linked to a Google/GitHub account. Please login with your social provider."
             }, { status: 400 });
-         } 
+         }
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
-      const token = crypto.randomBytes(32).toString("hex"); 
+      const token = crypto.randomBytes(32).toString("hex");
 
       // Create or Update the pending user
       await Users.findOneAndUpdate(
@@ -54,10 +54,30 @@ export const POST = async (request: Request) => {
          to: email,
          subject: 'Verify your account',
          html: `
-            <h1>Welcome ${name}!</h1>
-            <p>Click the button below to verify your email and activate your account:</p>
-            <a href="${verificationLink}" style="background: #000; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Verify Email</a>
-         `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; color: #1a1a1a;">
+      <div style="text-align: center; margin-bottom: 30px;">
+         <h1 style="font-size: 24px; font-weight: 700; letter-spacing: -0.5px; margin: 0;">Confirm your email address</h1>
+      </div>
+      
+      <p style="font-size: 16px; line-height: 24px; color: #444;">
+        Hi ${name},<br><br>
+        Thanks for signing up! To get started with your meter management dashboard, please verify your email address by clicking the button below:
+      </p>
+
+      <div style="text-align: center; margin: 40px 0;">
+        <a href="${verificationLink}" 
+           style="background-color: #000; color: #fff; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px; display: inline-block;">
+           Verify Email
+        </a>
+      </div> 
+      
+      <hr style="border: 0; border-top: 1px solid #eaeaea; margin: 40px 0 20px;" />
+      
+      <p style="font-size: 12px; color: #888; text-align: center;">
+        If you didn't create an account, you can safely ignore this email.
+      </p>
+    </div>
+  `
       });
 
       return NextResponse.json({

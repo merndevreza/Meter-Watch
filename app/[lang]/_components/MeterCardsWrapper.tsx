@@ -17,6 +17,7 @@ import { useState } from "react";
 const MeterCardsWrapper = ({ metersData=[] }: { metersData: MeterDataType[] | [] }) => {
    const [allMeters, setAllMeters] = useState<MeterDataType[]>(metersData);
 
+   
    const getMeterTypeText = (type: string) => {
       switch (type) {
          case 'single-phase':
