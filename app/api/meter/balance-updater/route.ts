@@ -9,8 +9,7 @@ export const PUT = async (request: Request) => {
    if (!session?.user?.emailVerified) {
       return NextResponse.json({ success: false, message: "Unauthorized", status: 401 });
    }
-   const reqBody = await request.json();
-   console.log("reqBody", reqBody);
+   const reqBody = await request.json(); 
 
    const { mongoId, newBalance } = reqBody;
    try {

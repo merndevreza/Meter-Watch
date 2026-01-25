@@ -3,14 +3,14 @@ import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
 import {
   Field,
   FieldDescription,
-  FieldGroup,
-  FieldLabel,
+  FieldGroup, 
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
@@ -43,7 +43,6 @@ export function SignupForm() {
         },
         body: JSON.stringify({ name, email, password }),
       });
-      console.log("response", response);
 
       const data = await response.json();
       if (data.success) {
@@ -58,8 +57,11 @@ export function SignupForm() {
   }
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Create an account</CardTitle>
+      <CardHeader className="text-center">
+        <CardTitle className="text-2xl">Create an account</CardTitle>
+        <CardDescription>
+          Sign up with your valid email address
+        </CardDescription>
       </CardHeader>
       <CardContent>
         {error && (
@@ -68,38 +70,31 @@ export function SignupForm() {
           </div>
         )}
         <form onSubmit={handleSubmit}>
-          <FieldGroup>
+          <FieldGroup className="gap-2">
             <Field>
-              <FieldLabel htmlFor="name">Full Name</FieldLabel>
-              <Input id="name" type="text" name="name" required />
+              <Input id="name" type="text" name="name" placeholder="Name" required />
             </Field>
             <Field>
-              <FieldLabel htmlFor="email">Email</FieldLabel>
               <Input
                 id="email"
                 type="email"
                 name="email"
+                placeholder="Email"
                 required
               />
             </Field>
-            <Field>
-              <FieldLabel htmlFor="password">Password</FieldLabel>
-              <Input id="password" type="password" name="password" required />
+            <Field className="mt-3">
+              <Input id="password" type="password" name="password" placeholder="Password" required />
             </Field>
             <Field>
-              <FieldLabel htmlFor="confirm-password">
-                Confirm Password
-              </FieldLabel>
-              <Input id="confirm-password" type="password" name="confirm-password" required />
+              <Input id="confirm-password" type="password" name="confirm-password" placeholder="Confirm Password" required />
             </Field>
-            <FieldGroup>
-              <Field>
-                <Button type="submit">Sign Up</Button>
-                <FieldDescription className="px-6 text-center">
-                  Already have an account? <Link href="/login">Sign in</Link>
-                </FieldDescription>
-              </Field>
-            </FieldGroup>
+            <Field className="mt-1">
+              <Button type="submit">Sign Up</Button>
+              <FieldDescription className="px-6 text-center pt-8">
+                Already have an account? <Link href="/login">Sign in</Link>
+              </FieldDescription>
+            </Field>
           </FieldGroup>
         </form>
       </CardContent>

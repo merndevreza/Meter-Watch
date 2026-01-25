@@ -28,9 +28,7 @@ export async function GET(request: Request) {
       await Promise.allSettled(
          lowBalanceMeters.map(async (meter) => {
             const owner = meter.meterOwner;
-            if (!owner?.email) return;
-
-            console.log(`Sending email to ${owner.email} for Meter ${meter.meterNumber}`);
+            if (!owner?.email) return; 
 
             await resend.emails.send({
                from: 'onboarding@resend.dev',

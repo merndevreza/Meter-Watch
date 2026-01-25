@@ -11,16 +11,15 @@ import {
 import { fetchUserMeters } from '../actions/meter';
 import MeterCardsWrapper from './_components/MeterCardsWrapper';
 import { MeterDataType } from '@/types/meter-type';
+import { User } from '@/types/user';
 
 export default async function Overview({ params }: { params: Promise<{ lang: "en" | "bn" }> }) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
   const dictionary = await getDictionary(lang);
 
-  const session = await auth();
-  console.log("session", session);
-  const meters = await fetchUserMeters();
-  console.log("meters.data", meters.data);
+  const session = await auth(); 
+  const meters = await fetchUserMeters(); 
   
   if (!session?.user?.emailVerified) {
     redirect(`/${lang}/login`);
@@ -33,8 +32,7 @@ export default async function Overview({ params }: { params: Promise<{ lang: "en
 //     cache: 'no-store', // Ensure it doesn't cache the result
 //   });
 
-//   const data = await response.json();
-// console.log("data", data);
+//   const data = await response.json(); 
 
   return (
     <SidebarProvider
@@ -45,7 +43,7 @@ export default async function Overview({ params }: { params: Promise<{ lang: "en
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant="inset" />
+      <AppSidebar user={session?.user as User} />
       <SidebarInset>
         <SiteHeader />
         <div className='py-4 md:py-6'>

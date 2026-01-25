@@ -20,12 +20,10 @@ const CardButtons = ({ meterCurrentBalance, mongoId, onDeleteMeter, onBalanceUpd
                'Content-Type': 'application/json',
             },
             body: JSON.stringify({ mongoId: mongoId }),
-         });
-         console.log(response);
+         }); 
          if (response.status === 200) {
             onDeleteMeter(mongoId);
-         }
-         console.log(`Deleting meter with ID: ${mongoId}`);
+         } 
       } catch (error) {
          console.log("delete error", error);
       }
