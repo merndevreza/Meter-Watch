@@ -5,17 +5,17 @@ import { NextResponse } from "next/server";
 
 // Add New Meter
 export const POST = async (request: Request) => {
-   const session = await auth(); 
+   const session = await auth();
 
    if (!session?.user?.emailVerified) {
       return NextResponse.json({ success: false, message: "Unauthorized", status: 401 });
    }
-   const reqBody = await request.json(); 
+   const reqBody = await request.json();
 
    const { meterName, meterNumber, sanctionLoad, sanctionTariff, meterType, meterInstallationDate, minimumRechargeThreshold } = reqBody;
    try {
       await connectMongo();
-      const alreadyExists = await Meters.findOne({ meterNumber }); 
+      const alreadyExists = await Meters.findOne({ meterNumber });
 
       if (alreadyExists) {
          return NextResponse.json({ success: false, message: "Meter already exists", status: 409 });
@@ -29,11 +29,11 @@ export const POST = async (request: Request) => {
          meterInstallationDate,
          minimumRechargeThreshold,
          currentBalance: 0,
-         meterStatus: "active",
+         isActive: true,
          createdAt: new Date(),
          createdBy: session.user.email,
          meterOwner: session.user.id,
-      }  
+      }
       await Meters.create(newMeter);
       return NextResponse.json({ success: true, message: "Meter added successfully", status: 201 });
    } catch (error) {
@@ -44,16 +44,16 @@ export const POST = async (request: Request) => {
 
 // Delete Meter
 export const DELETE = async (request: Request) => {
-   const session = await auth(); 
+   const session = await auth();
    if (!session?.user?.emailVerified) {
       return NextResponse.json({ success: false, message: "Unauthorized", status: 401 });
    }
-   const reqBody = await request.json(); 
-   const { mongoId } = reqBody; 
+   const reqBody = await request.json();
+   const { mongoId } = reqBody;
 
    try {
       await connectMongo();
-      const deletionResult = await Meters.deleteOne({ _id: mongoId, meterOwner: session.user.id }); 
+      const deletionResult = await Meters.deleteOne({ _id: mongoId, meterOwner: session.user.id });
 
       if (deletionResult.deletedCount === 0) {
          return NextResponse.json({ success: false, message: "Meter not found or you do not have permission to delete it.", status: 404 });
@@ -62,5 +62,43 @@ export const DELETE = async (request: Request) => {
    } catch (error) {
       console.log(error);
       return NextResponse.json({ success: false, message: "Failed to delete meter", status: 500 });
+   }
+}
+
+// Edit Meter
+export const PUT = async (request: Request) => {
+   const session = await auth();
+   if (!session?.user?.emailVerified) {
+      return NextResponse.json({ success: false, message: "Unauthorized", status: 401 });
+   }
+   const reqBody = await request.json();
+   console.log("reqBody", reqBody);
+   
+   const { mongoId, meterName, sanctionLoad, sanctionTariff, meterType, meterInstallationDate, minimumRechargeThreshold, isActive } = reqBody;
+   try {
+      await connectMongo();
+      const updateResult = await Meters.updateOne(
+         { _id: mongoId, meterOwner: session.user.id },
+         {
+            $set: {
+               isActive,
+               meterName,
+               sanctionLoad,
+               sanctionTariff,
+               meterType,
+               meterInstallationDate,
+               minimumRechargeThreshold,
+               updatedAt: new Date(),
+            },
+         }
+      ); 
+      
+      if (updateResult.matchedCount === 0) {
+         return NextResponse.json({ success: false, message: "Meter not found or you do not have permission to edit it.", status: 404 });
+      }
+      return NextResponse.json({ success: true, message: "Meter updated successfully", status: 200 });
+   } catch (error) {
+      console.log(error);
+      return NextResponse.json({ success: false, message: "Failed to update meter", status: 500 });
    }
 }

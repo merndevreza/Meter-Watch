@@ -49,10 +49,10 @@ const MeterCardsWrapper = ({ metersData }: { metersData: MeterDataType[] }) => {
                            </CardDescription>
                         </div>
                         <Badge
-                           variant={meter.meterStatus === 'active' ? "default" : "destructive"}
-                           className={`uppercase px-3 py-1 text-xs font-medium flex items-center gap-2 shadow-inner bg-primary/3 {meter.meterStatus === 'active' ? "text-emerald-700 border-white " : ""}`}>
-                           <span className={`h-2.5 w-2.5 rounded-full ${meter.meterStatus === 'active' ? "bg-emerald-700 animate-pulse" : "bg-red-600"}`} />
-                           {meter.meterStatus}
+                           variant={meter.isActive ? "default" : "destructive"}
+                           className={`uppercase px-3 py-1 text-xs font-medium flex items-center gap-2 shadow-inner bg-primary/3 ${meter.isActive ? "text-emerald-700 border-white " : ""}`}>
+                           <span className={`h-2.5 w-2.5 rounded-full ${meter.isActive ? "bg-emerald-700 animate-pulse" : "bg-red-600"}`} />
+                           {meter.isActive ? "Active" : "Inactive"}
                         </Badge>
                      </div>
                   </CardHeader>
@@ -98,7 +98,7 @@ const MeterCardsWrapper = ({ metersData }: { metersData: MeterDataType[] }) => {
 
                      <Separator className="opacity-60" />
 
-                     <CardButtons meterCurrentBalance={meter.currentBalance} mongoId={meter.id} onDeleteMeter={onDeleteMeter}/>
+                     <CardButtons meterCurrentBalance={meter.currentBalance} mongoId={meter.id} onDeleteMeter={onDeleteMeter} isActive={meter.isActive} />
                   </CardContent>
                   <CardFooter className="bg-muted/40 pb-4 [.border-t]:pt-4 border-t">
                      <div className="flex w-full items-center justify-center gap-2 text-sm text-muted-foreground font-semibold">

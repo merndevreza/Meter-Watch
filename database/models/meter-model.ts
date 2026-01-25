@@ -22,8 +22,8 @@ const meterSchema = new Schema({
       type: String,
       required: true,
    },
-   meterStatus: {
-      type: String,
+   isActive: {
+      type: Boolean,
       required: true,
    },
    minimumRechargeThreshold: {

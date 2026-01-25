@@ -54,7 +54,7 @@ const AddEditMeterForm = () => {
          console.log("result", result);
 
          if (result.success) {
-            router.push("/dashboard/meters");
+            router.push("/");
          } else {
             setError(result.message);
          }

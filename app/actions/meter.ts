@@ -1,7 +1,7 @@
 import { auth } from '@/auth';
 import { Meters } from '@/database/models/meter-model';
 import connectMongo from '@/database/services/connectMongo';
-import { replaceMongoIdInArray } from '@/lib/replaceMongoID';
+import { replaceMongoIdInArray, replaceMongoIdInObject } from '@/lib/replaceMongoID';
 
 export async function fetchUserMeters() {
       try {
@@ -29,6 +29,33 @@ export async function fetchUserMeters() {
                   success: false,
                   error: "Internal Server Error. Please try again later.",
                   data: []
+            };
+      }
+}
+
+// get meter by mongoId
+export async function fetchMeterById(mongoId: string) {
+      try {
+            const session = await auth();
+            if (!session?.user?.id || !session?.user?.emailVerified) {
+                  return { success: false, error: "Unauthorized", data: null };
+            }
+            await connectMongo();
+            const meter = await Meters.findOne({ _id: mongoId, meterOwner: session.user.id }).lean();
+            if (!meter) {
+                  return { success: false, error: "Meter not found", data: null };
+            }
+            const serializedMeter = JSON.parse(JSON.stringify(meter));
+            return {
+                  success: true,
+                  data: replaceMongoIdInObject(serializedMeter),
+            };
+      } catch (error) {
+            console.error("Error fetching meter by ID:", error);
+            return {
+                  success: false,
+                  error: "Internal Server Error. Please try again later.",
+                  data: null
             };
       }
 }
