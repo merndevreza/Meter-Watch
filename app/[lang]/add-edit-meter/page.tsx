@@ -10,7 +10,6 @@ export default async function Page({
 }) {
   const { id: mongoId } = await searchParams;
   
-  // Use a null or undefined default instead of an empty object
   let meterData: MeterDataType | undefined = undefined;
 
   if (mongoId) {

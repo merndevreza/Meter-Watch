@@ -33,6 +33,15 @@ const MeterCardsWrapper = ({ metersData=[] }: { metersData: MeterDataType[] | []
       const updatedMeters = allMeters.filter(meter => meter.id !== mongoId);
       setAllMeters(updatedMeters);
    }
+   const onRechargeMeter = (mongoId: string, newBalance: number) => {
+      const updatedMeters = allMeters.map(meter => {
+         if (meter.id === mongoId) {
+            return { ...meter, currentBalance: newBalance };
+         }
+         return meter;
+      });
+      setAllMeters(updatedMeters);
+   }
    return (
       <div className="grid grid-cols-1 gap-6 px-4 lg:px-6 xl:grid-cols-3 2xl:grid-cols-4">
          {allMeters?.length > 0 ? (
@@ -98,7 +107,7 @@ const MeterCardsWrapper = ({ metersData=[] }: { metersData: MeterDataType[] | []
 
                      <Separator className="opacity-60" />
 
-                     <CardButtons meterCurrentBalance={meter.currentBalance} mongoId={meter.id} onDeleteMeter={onDeleteMeter} isActive={meter.isActive} />
+                     <CardButtons meterCurrentBalance={meter.currentBalance} onRechargeMeter={onRechargeMeter} mongoId={meter.id} onDeleteMeter={onDeleteMeter} isActive={meter.isActive} />
                   </CardContent>
                   <CardFooter className="bg-muted/40 pb-4 [.border-t]:pt-4 border-t">
                      <div className="flex w-full items-center justify-center gap-2 text-sm text-muted-foreground font-semibold">

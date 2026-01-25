@@ -38,6 +38,7 @@ export default async function RootLayout({
         >
           {children}
         </ThemeProvider>
+        <div id='modal-portal'></div>
       </body>
     </html>
   );

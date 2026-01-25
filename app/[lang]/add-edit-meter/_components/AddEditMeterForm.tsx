@@ -21,8 +21,7 @@ import { useState } from "react";
 
 
 const AddEditMeterForm = ({ meterData, mongoId }: { meterData?: MeterDataType; mongoId?: string | undefined }) => {
-   const [error, setError] = useState<string | null>(null);
-   // Initialize state with meterData if it exists
+   const [error, setError] = useState<string | null>(null); 
    const [isActive, setIsActive] = useState<boolean>(meterData?.isActive ?? false);
    const [meterType, setMeterType] = useState<string>(meterData?.meterType ?? "single-phase");
 
@@ -57,7 +56,7 @@ const AddEditMeterForm = ({ meterData, mongoId }: { meterData?: MeterDataType; m
          const result = await response.json();
 
          if (result.success) {
-            router.push("/"); // Fixed: redirected to dashboard instead of /en
+            router.push("/"); 
          } else {
             setError(result.message);
          }
