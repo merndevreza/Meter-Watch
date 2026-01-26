@@ -20,12 +20,8 @@ export default async function AuthLayout({
    const session = await auth();
    console.log("session", session);
 
-   if (session?.user) {
-      if (session?.user?.emailVerified) {
-         redirect(`/${lang}`);
-      } else {
-         redirect(`/${lang}/verify-email`);
-      }
+   if (session?.user?.emailVerified) {
+      redirect(`/${lang}`);
    }
    return (
       <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
