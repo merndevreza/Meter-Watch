@@ -13,11 +13,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-const FormSchema = z.object({
-  locale: z
-    .string({
-      required_error: "Please select a language.",
-    })
+const FormSchema = z.object({ 
+  locale: z.string().min(1, { message: "Please select a language." }),
 });
 
 const LanguageSwitcher = ({ dictionary, lang }) => {

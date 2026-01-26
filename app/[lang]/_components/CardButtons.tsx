@@ -4,26 +4,30 @@ import { Button } from '@/components/ui/button';
 import { MeterCardButtonsProps } from '@/types/meter-type';
 import { BanknoteArrowDown, BanknoteArrowUp, SquarePen, Trash } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react'; 
+import { useState } from 'react';
 import BalanceUpdaterModal from './BalanceUpdaterModal';
+import DeleteConfirmationModal from '@/components/Modals/DeleteConfirmationModal';
 
 const CardButtons = ({ meterCurrentBalance, mongoId, onDeleteMeter, onBalanceUpdate, isActive }: MeterCardButtonsProps) => {
    const [showRechargeModal, setShowRechargeModal] = useState(false);
    const [showBalanceUseModal, setShowBalanceUseModal] = useState(false);
+   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
    const handleDeleteMeter = async () => {
-      try {
-         // Implement delete meter functionality here
+      try { 
          const response = await fetch('/api/meter', {
             method: 'DELETE',
             headers: {
                'Content-Type': 'application/json',
             },
             body: JSON.stringify({ mongoId: mongoId }),
-         }); 
+         });
          if (response.status === 200) {
-            onDeleteMeter(mongoId);
-         } 
+            onDeleteMeter(mongoId); 
+            setTimeout(() => {
+               setShowConfirmationModal(false);
+            }, 1000);
+         }
       } catch (error) {
          console.log("delete error", error);
       }
@@ -45,7 +49,7 @@ const CardButtons = ({ meterCurrentBalance, mongoId, onDeleteMeter, onBalanceUpd
                   <SquarePen className="h-5 w-5" />
                </Button>
             </Link>
-            <Button onClick={handleDeleteMeter} variant="outline" size="icon" className="h-11 w-11 flex-1 sm:flex-none text-destructive border-destructive/20 hover:bg-destructive/5">
+            <Button onClick={()=>setShowConfirmationModal(true)} variant="outline" size="icon" className="h-11 w-11 flex-1 sm:flex-none text-destructive border-destructive/20 hover:bg-destructive/5">
                <Trash className="h-5 w-5" />
             </Button>
          </div>
@@ -53,6 +57,13 @@ const CardButtons = ({ meterCurrentBalance, mongoId, onDeleteMeter, onBalanceUpd
             (showRechargeModal || showBalanceUseModal) && (
                <ModalPortal setShowModal={showRechargeModal ? setShowRechargeModal : setShowBalanceUseModal}>
                   <BalanceUpdaterModal setShowModal={showRechargeModal ? setShowRechargeModal : setShowBalanceUseModal} onBalanceUpdate={onBalanceUpdate} mongoId={mongoId} currentBalance={meterCurrentBalance} modalType={showRechargeModal ? "recharge" : "balance-use"} />
+               </ModalPortal>
+            )
+         }
+         {
+            showConfirmationModal && (
+               <ModalPortal setShowModal={setShowConfirmationModal}>
+                  <DeleteConfirmationModal onClose={() => setShowConfirmationModal(false)} onDelete={() => handleDeleteMeter()} title="Delete Meter" description="Are you sure you want to delete this meter? This action cannot be undone" />
                </ModalPortal>
             )
          }
