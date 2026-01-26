@@ -1,17 +1,17 @@
-import { cn } from "@/lib/utils"
-import { LoginForm } from "./_components/login-form";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { cn } from "@/lib/utils";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   FieldDescription,
-} from "@/components/ui/field"
-import { notFound } from "next/navigation";
-import Link from "next/link";
+} from "@/components/ui/field";
+import { LoginForm } from "./_components/login-form";
 import OAuthAndMagicLogin from "../_components/OAuthAndMagicLogin";
 import { getDictionary, hasLocale } from "../../dictionaries/dictionaries";
 
@@ -19,7 +19,7 @@ export default async function Page({ params }: { params: Promise<{ lang: "en" | 
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
   const dictionary = await getDictionary(lang);
- 
+
   return (
     <div className={cn("flex flex-col gap-6")}>
       <Card>

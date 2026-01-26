@@ -1,106 +1,163 @@
 "use client";
-import { Button } from "@/components/ui/button"
-import {
-  Field,
-  FieldGroup,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
+
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { useState, useMemo } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
+
+// 1. Define Validation Schema
+const signupSchema = z.object({
+  name: z.string().min(2, "Name is too short"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  confirmPassword: z.string()
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
+type SignupValues = z.infer<typeof signupSchema>;
 
 export function SignupForm() {
-  const [error, setError] = useState<string | null>(null);
-  const [showFieldType, setShowFieldType] = useState({
-    password: false,
-    confirmPassword: false
-  })
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
+  const form = useForm<SignupValues>({
+    resolver: zodResolver(signupSchema),
+    defaultValues: { name: "", email: "", password: "", confirmPassword: "" },
+  });
 
-  // Handle form submission
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const name = formData.get("name") as string;
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-    const confirmPassword = formData.get("confirm-password") as string;
+  // 2. Password Strength Logic
+  const password = form.watch("password");
+  
+  const strengthRequirements = useMemo(() => [
+    { label: "8+ characters", met: password.length >= 8 },
+    { label: "A number", met: /[0-9]/.test(password) },
+    { label: "Special char", met: /[^A-Za-z0-9]/.test(password) },
+    { label: "Uppercase", met: /[A-Z]/.test(password) },
+  ], [password]);
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
+  const strengthScore = strengthRequirements.filter(req => req.met).length;
+
+  const getStrengthColor = (score: number) => {
+    if (score <= 1) return "bg-red-500";
+    if (score <= 3) return "bg-yellow-500";
+    return "bg-green-500";
+  };
+
+  const onSubmit = async (values: SignupValues) => {
     try {
       const response = await fetch("/api/auth/signup", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name, email, password }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
       });
-
       const data = await response.json();
-      if (data.success) {
-        setError(null);
-      } else {
-        setError(data.message);
-      }
-
+      if (data.success) router.push("/login");
     } catch (error) {
-      setError("An unexpected error occurred. Please try again.");
+      console.error(error);
     }
-  }
+  };
+
   return (
-    <div>
-      {error && (
-        <p className="mb-4 text-sm text-red-500">
-          {error}
-        </p>
-      )}
-      <form onSubmit={handleSubmit}>
-        <FieldGroup className="gap-6">
-          <Field>
-            <Input id="name" type="text" name="name" placeholder="Name" required />
-          </Field>
-          <Field>
-            <Input
-              id="email"
-              type="email"
-              name="email"
-              placeholder="Email"
-              required
-            />
-          </Field>
-          <Field className="relative">
-            <Input id="password" type={showFieldType.password ? "text" : "password"} name="password" placeholder="Password" required />
-            <Button variant="link" className="absolute right-0 top-0 max-w-10" onClick={(e) => {
-              e.preventDefault()
-              setShowFieldType({
-                ...showFieldType,
-                password: !showFieldType.password
-              })
-            }}>
-              {showFieldType.password ? <EyeOff /> : <Eye />}
-            </Button>
-          </Field>
-          <Field className="relative">
-            <Input id="confirm-password" type={showFieldType.confirmPassword ? "text" : "password"} name="confirm-password" placeholder="Confirm Password" required />
-            <Button variant="link" className="absolute right-0 top-0 max-w-10" onClick={(e) => {
-              e.preventDefault()
-              setShowFieldType({
-                ...showFieldType,
-                confirmPassword: !showFieldType.confirmPassword
-              })
-            }}>
-              {showFieldType.confirmPassword ? <EyeOff /> : <Eye />}
-            </Button>
-          </Field>
-          <Field className="mt-1">
-            <Button type="submit">Sign Up</Button>
-          </Field>
-        </FieldGroup>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <Input placeholder="Name" {...field} />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <Input placeholder="Email" {...field} />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <div className="relative">
+                <FormControl>
+                  <Input 
+                    type={showPassword ? "text" : "password"} 
+                    placeholder="Password" 
+                    {...field} 
+                  />
+                </FormControl>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
+
+              {/* Password Strength Indicator */}
+              {password.length > 0 && (
+                <div className="mt-2 space-y-2">
+                  <div className="flex gap-1 h-1">
+                    {[...Array(4)].map((_, i) => (
+                      <div
+                        key={i}
+                        className={`h-full w-full rounded-full transition-colors duration-300 ${
+                          i < strengthScore ? getStrengthColor(strengthScore) : "bg-muted"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {strengthScore < 4 
+                      ? `Missing: ${strengthRequirements.find(r => !r.met)?.label}`
+                      : "Strong password!"}
+                  </p>
+                </div>
+              )}
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="confirmPassword"
+          render={({ field }) => (
+            <FormItem>
+              <Input type="password" placeholder="Confirm Password" {...field} />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <Button type="submit" className="w-full">Sign Up</Button>
       </form>
-    </div>
-  )
+    </Form>
+  );
 }

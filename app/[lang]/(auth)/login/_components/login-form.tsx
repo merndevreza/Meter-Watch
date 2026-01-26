@@ -1,73 +1,132 @@
 "use client";
-import { doCredentialsLogin } from "@/app/actions/login";
-import { Button } from "@/components/ui/button"
-import {
-  Field,
-  FieldGroup
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { Eye, EyeOff } from "lucide-react";
+
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+
+import { doCredentialsLogin } from "@/app/actions/login";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
+
+// 1. Schema: Keep it simple for login
+const loginSchema = z.object({
+  email: z.string().email("Please enter a valid email"),
+  password: z.string().min(1, "Password is required"),
+});
+
+type LoginValues = z.infer<typeof loginSchema>;
 
 export function LoginForm({ lang }: { lang: "en" | "bn" }) {
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [isPending, startTransition] = useTransition(); // Handle loading state gracefully
   const router = useRouter();
-  const [showFieldType, setShowFieldType] = useState({
-    password: false,
-    confirmPassword: false
-  })
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-    try {
-      const response = await doCredentialsLogin(formData);
 
-      if (response.error) {
-        setError(response.error);
-      } else if (response.success) {
-        router.push(`/${lang}`);
+  const form = useForm<LoginValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: "", password: "" },
+  });
+
+  const onSubmit = async (values: LoginValues) => {
+    setError(null);
+    
+    // Using startTransition helps React manage the UI during the async Server Action
+    startTransition(async () => {
+      try {
+        // We pass the raw values or a new FormData if your action specifically needs it
+        const formData = new FormData();
+        formData.append("email", values.email);
+        formData.append("password", values.password);
+
+        const response = await doCredentialsLogin(formData);
+
+        if (response?.error) {
+          setError(response.error);
+        } else {
+          router.push(`/${lang}`);
+          router.refresh(); // Ensure the auth state is updated across the app
+        }
+      } catch (err) {
+        setError("Something went wrong. Please try again.");
       }
-    } catch (error) {
-      console.log(error);
-    }
-  }
+    });
+  };
 
   return (
-    <div>
+    <div className="w-full space-y-4">
       {error && (
-        <p className="mb-4 text-sm text-red-500">
+        <div className="p-3 text-sm font-medium text-destructive bg-destructive/10 rounded-md">
           {error}
-        </p>
+        </div>
       )}
-      <form onSubmit={handleSubmit}>
-        <FieldGroup className="gap-6">
-          <Field>
-            <Input
-              id="email"
-              type="email"
-              name="email"
-              placeholder="Email"
-              required
-            />
-          </Field>
-          <Field className="relative">
-            <Input name="password" id="password" type={showFieldType.password ? "text" : "password"} placeholder="password" required />
-              <Button variant="link" className="absolute right-0 top-0 max-w-10" onClick={(e) => {
-              e.preventDefault()
-              setShowFieldType({
-                ...showFieldType,
-                password: !showFieldType.password
-              })
-            }}>
-              {showFieldType.password ? <EyeOff /> : <Eye />}
-            </Button>
-          </Field>
-          <Field className="mt-1">
-            <Button type="submit">Login</Button>
-          </Field>
-        </FieldGroup>
-      </form>
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Input placeholder="Email" {...field} disabled={isPending} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <div className="relative">
+                  <FormControl>
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Password"
+                      {...field}
+                      disabled={isPending}
+                    />
+                  </FormControl>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                    onClick={() => setShowPassword(!showPassword)}
+                    disabled={isPending}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </Button>
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <Button type="submit" className="w-full" disabled={isPending}>
+            {isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Logging in...
+              </>
+            ) : (
+              "Login"
+            )}
+          </Button>
+        </form>
+      </Form>
     </div>
-  )
+  );
 }

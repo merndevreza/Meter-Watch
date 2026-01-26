@@ -1,6 +1,6 @@
+import { auth } from '@/auth';
 import { notFound, redirect } from 'next/navigation';
 import { getDictionary, hasLocale } from "../dictionaries/dictionaries";
-import { auth } from '@/auth';
 import AuthHeader from './_components/AuthHeader';
 
 export default async function AuthLayout({
