@@ -1,3 +1,5 @@
+import { Dictionary } from "./dictionary";
+
 export interface ModalPortalProps {
     children: React.ReactNode;
     setShowModal: (state: boolean) => void;
@@ -5,6 +7,7 @@ export interface ModalPortalProps {
 }
 
 export type BalanceUpdaterModalProps = {
+    dictionary:Dictionary;
     currentBalance: number;
     mongoId: string;
     onBalanceUpdate: (mongoId: string, newBalance: number) => void;

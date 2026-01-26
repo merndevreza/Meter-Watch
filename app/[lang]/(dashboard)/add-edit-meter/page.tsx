@@ -5,6 +5,7 @@ import { MeterDataType } from '@/types/meter-type';
 import { auth } from '@/auth';
 import { notFound } from 'next/navigation'; 
 import { getDictionary, hasLocale } from '../../dictionaries/dictionaries';
+import { Dictionary } from '@/types/dictionary';
 
 export default async function Page({
   searchParams,
@@ -31,7 +32,7 @@ export default async function Page({
 
   return (
     <div className="w-full max-w-xl mx-auto px-6">
-      <AddEditMeterForm meterData={meterData} mongoId={mongoId} />
+      <AddEditMeterForm dictionary={dictionary as Dictionary} meterData={meterData} mongoId={mongoId} />
     </div>
   );
 }

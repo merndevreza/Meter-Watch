@@ -18,6 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { toast } from "sonner";
+import { Dictionary } from "@/types/dictionary";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -26,7 +27,7 @@ const loginSchema = z.object({
 
 type LoginValues = z.infer<typeof loginSchema>;
 
-export function LoginForm({ verified, lang }: { verified: string | undefined; lang: "en" | "bn" }) {
+export function LoginForm({ dictionary, verified, lang }: { dictionary: Dictionary; verified: string | undefined; lang: "en" | "bn" }) {
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [isPending, startTransition] = useTransition(); // Handle loading state gracefully
@@ -120,7 +121,7 @@ export function LoginForm({ verified, lang }: { verified: string | undefined; la
             {isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Logging in...
+                {dictionary.loggingIn}
               </>
             ) : (
               "Login"

@@ -16,16 +16,16 @@ export default async function Page({ params }: { params: Promise<{ lang: "en" | 
     <div className={cn("flex flex-col gap-6")}>
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Create an account</CardTitle>
+          <CardTitle className="text-2xl">{dictionary.signUpTitle}</CardTitle>
           <CardDescription>
-            Sign up with your valid email address
+           {dictionary.signUpDesc}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <SignupForm />
           <OAuthAndMagicLogin />
           <FieldDescription className="px-6 text-center pt-8">
-            Already have an account? <Link href={`/${lang}/login`}>Sign in</Link>
+            {dictionary.alreadyHaveAccount} <Link href={`/${lang}/login`}>{dictionary.loginTitle}</Link>
           </FieldDescription>
         </CardContent>
       </Card>

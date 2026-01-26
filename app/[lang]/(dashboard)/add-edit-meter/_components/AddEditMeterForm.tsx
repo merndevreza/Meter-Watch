@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Dictionary } from "@/types/dictionary";
 import { AddMeterFormProps, EditMeterFormProps, MeterDataType } from "@/types/meter-type";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -23,7 +24,7 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
 
-const AddEditMeterForm = ({ meterData, mongoId }: { meterData?: MeterDataType; mongoId?: string | undefined }) => {
+const AddEditMeterForm = ({dictionary, meterData, mongoId }: {dictionary:Dictionary; meterData?: MeterDataType; mongoId?: string | undefined }) => {
    const [error, setError] = useState<string | null>(null);
    const [isActive, setIsActive] = useState<boolean>(meterData?.isActive ?? false);
    const [meterType, setMeterType] = useState<string>(meterData?.meterType ?? "single-phase");
@@ -93,7 +94,7 @@ const AddEditMeterForm = ({ meterData, mongoId }: { meterData?: MeterDataType; m
             <form onSubmit={handleSubmit}>
                <FieldGroup>
                   <Field>
-                     <FieldLabel htmlFor="meter-name">Meter Name</FieldLabel>
+                     <FieldLabel htmlFor="meter-name">{dictionary.meterName}</FieldLabel>
                      <Input
                         id="meter-name"
                         name="meter-name"
@@ -103,7 +104,7 @@ const AddEditMeterForm = ({ meterData, mongoId }: { meterData?: MeterDataType; m
                   </Field>
 
                   <Field>
-                     <FieldLabel htmlFor="meter-number">Meter No.</FieldLabel>
+                     <FieldLabel htmlFor="meter-number">{dictionary.meterNo}</FieldLabel>
                      <Input
                         id="meter-number"
                         type="number"
@@ -114,7 +115,7 @@ const AddEditMeterForm = ({ meterData, mongoId }: { meterData?: MeterDataType; m
                   </Field>
 
                   <Field>
-                     <FieldLabel htmlFor="sanction-load">Sanction Load (K.W)</FieldLabel>
+                     <FieldLabel htmlFor="sanction-load">{dictionary.sanctionLoad} (K.W)</FieldLabel>
                      <Input
                         id="sanction-load"
                         type="number"
@@ -126,7 +127,7 @@ const AddEditMeterForm = ({ meterData, mongoId }: { meterData?: MeterDataType; m
                   </Field>
 
                   <Field>
-                     <FieldLabel htmlFor="sanction-tariff">Sanction Tariff</FieldLabel>
+                     <FieldLabel htmlFor="sanction-tariff">{dictionary.tariffType}</FieldLabel>
                      <Input
                         id="sanction-tariff"
                         name="sanction-tariff"
@@ -150,7 +151,7 @@ const AddEditMeterForm = ({ meterData, mongoId }: { meterData?: MeterDataType; m
                   )}
 
                   <Field>
-                     <FieldLabel htmlFor="meter-type">Meter Type</FieldLabel>
+                     <FieldLabel htmlFor="meter-type">{dictionary.meterType}</FieldLabel>
                      <Select
                         name="meter-type"
                         value={meterType}
@@ -160,15 +161,15 @@ const AddEditMeterForm = ({ meterData, mongoId }: { meterData?: MeterDataType; m
                            <SelectValue placeholder="Select Type" />
                         </SelectTrigger>
                         <SelectContent>
-                           <SelectItem value="single-phase">Single Phase</SelectItem>
-                           <SelectItem value="two-phase">Two Phase</SelectItem>
-                           <SelectItem value="three-phase">Three Phase</SelectItem>
+                           <SelectItem value="single-phase">{dictionary.singlePhase}</SelectItem>
+                           <SelectItem value="two-phase">{dictionary.twoPhase}</SelectItem>
+                           <SelectItem value="three-phase">{dictionary.threePhase}</SelectItem>
                         </SelectContent>
                      </Select>
                   </Field>
 
                   <Field>
-                     <FieldLabel htmlFor="minimum-recharge-threshold">Set Minimum Recharge Threshold (TK)</FieldLabel>
+                     <FieldLabel htmlFor="minimum-recharge-threshold">{dictionary.setMin}</FieldLabel>
                      <Input
                         id="minimum-recharge-threshold"
                         type="number"
@@ -180,7 +181,7 @@ const AddEditMeterForm = ({ meterData, mongoId }: { meterData?: MeterDataType; m
                   </Field>
 
                   <Field>
-                     <FieldLabel htmlFor="meter-installation-date">Meter Installation Date</FieldLabel>
+                     <FieldLabel htmlFor="meter-installation-date">{dictionary.meterInstallDate}</FieldLabel>
                      <Input
                         id="meter-installation-date"
                         name="meter-installation-date"

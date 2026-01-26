@@ -13,8 +13,8 @@ import {
 } from "@/components/ui/field";
 import { LoginForm } from "./_components/login-form";
 import OAuthAndMagicLogin from "../_components/OAuthAndMagicLogin";
-import { getDictionary, hasLocale } from "../../dictionaries/dictionaries";
-import { toast } from "sonner";
+import { getDictionary, hasLocale } from "../../dictionaries/dictionaries"; 
+import { Dictionary } from "@/types/dictionary";
 
 export default async function Page({ searchParams, params }: {
   searchParams: Promise<{ [key: string]: string | undefined }>;
@@ -22,6 +22,7 @@ export default async function Page({ searchParams, params }: {
 }) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
+
   const dictionary = await getDictionary(lang);
   const { verified } = await searchParams;
  
@@ -29,16 +30,16 @@ export default async function Page({ searchParams, params }: {
     <div className={cn("flex flex-col gap-6")}>
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Login</CardTitle>
+          <CardTitle className="text-2xl">{dictionary.loginTitle}</CardTitle>
           <CardDescription>
-            Login with your any option below
+            {dictionary.loginDesc}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <LoginForm verified={verified} lang={lang} />
-          <OAuthAndMagicLogin />
+          <LoginForm dictionary={dictionary as Dictionary} verified={verified} lang={lang} />
+          <OAuthAndMagicLogin dictionary={dictionary as Dictionary} />
           <FieldDescription className="text-center pt-8">
-            Don&apos;t have an account? <Link href={`/${lang}/signup`}>Sign up</Link>
+            {dictionary.noAccount} <Link href={`/${lang}/signup`}>{dictionary.signUp}</Link>
           </FieldDescription>
         </CardContent>
       </Card>

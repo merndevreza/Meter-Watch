@@ -8,7 +8,7 @@ import { useState } from 'react';
 import BalanceUpdaterModal from './BalanceUpdaterModal';
 import DeleteConfirmationModal from '@/components/modals/DeleteConfirmationModal';
 
-const CardButtons = ({ meterCurrentBalance, mongoId, onDeleteMeter, onBalanceUpdate, isActive }: MeterCardButtonsProps) => {
+const CardButtons = ({dictionary, meterCurrentBalance, mongoId, onDeleteMeter, onBalanceUpdate, isActive }: MeterCardButtonsProps) => {
    const [showRechargeModal, setShowRechargeModal] = useState(false);
    const [showBalanceUseModal, setShowBalanceUseModal] = useState(false);
    const [showConfirmationModal, setShowConfirmationModal] = useState(false);
@@ -37,11 +37,11 @@ const CardButtons = ({ meterCurrentBalance, mongoId, onDeleteMeter, onBalanceUpd
       <div className="flex flex-wrap gap-3 pt-1">
          <Button onClick={() => setShowRechargeModal(true)} disabled={!isActive} className={`flex-1 h-11 gap-2 text-sm font-bold shadow-md active:scale-95 transition-transform`}>
             <BanknoteArrowUp className="h-5 w-5" />
-            Recharge
+            {dictionary.recharge}
          </Button>
          <Button onClick={() => setShowBalanceUseModal(true)} disabled={meterCurrentBalance <= 0} variant="secondary" className="flex-1 h-11 gap-2 text-sm font-bold active:scale-95 transition-transform">
             <BanknoteArrowDown className="h-5 w-5" />
-            Usage
+            {dictionary.usage}
          </Button>
          <div className="flex gap-2 w-full sm:w-auto">
             <Link href={`/add-edit-meter?id=${mongoId}`}>
@@ -56,14 +56,14 @@ const CardButtons = ({ meterCurrentBalance, mongoId, onDeleteMeter, onBalanceUpd
          {
             (showRechargeModal || showBalanceUseModal) && (
                <ModalPortal setShowModal={showRechargeModal ? setShowRechargeModal : setShowBalanceUseModal}>
-                  <BalanceUpdaterModal setShowModal={showRechargeModal ? setShowRechargeModal : setShowBalanceUseModal} onBalanceUpdate={onBalanceUpdate} mongoId={mongoId} currentBalance={meterCurrentBalance} modalType={showRechargeModal ? "recharge" : "balance-use"} />
+                  <BalanceUpdaterModal dictionary={dictionary} setShowModal={showRechargeModal ? setShowRechargeModal : setShowBalanceUseModal} onBalanceUpdate={onBalanceUpdate} mongoId={mongoId} currentBalance={meterCurrentBalance} modalType={showRechargeModal ? "recharge" : "balance-use"} />
                </ModalPortal>
             )
          }
          {
             showConfirmationModal && (
                <ModalPortal setShowModal={setShowConfirmationModal}>
-                  <DeleteConfirmationModal onClose={() => setShowConfirmationModal(false)} onDelete={() => handleDeleteMeter()} title="Delete Meter" description="Are you sure you want to delete this meter? This action cannot be undone" />
+                  <DeleteConfirmationModal onClose={() => setShowConfirmationModal(false)} onDelete={() => handleDeleteMeter()} title={dictionary.deleteModalTitle} description={dictionary.deleteModalDesc} />
                </ModalPortal>
             )
          }

@@ -13,11 +13,12 @@ import { Separator } from '@/components/ui/separator';
 import { MeterDataType } from '@/types/meter-type';
 import CardButtons from './CardButtons';
 import { useState } from "react";
+import { Dictionary } from "@/types/dictionary";
 
-const MeterCardsWrapper = ({ metersData=[] }: { metersData: MeterDataType[] | [] }) => {
+const MeterCardsWrapper = ({ dictionary, metersData = [] }: { dictionary: Dictionary; metersData: MeterDataType[] | [] }) => {
    const [allMeters, setAllMeters] = useState<MeterDataType[]>(metersData);
 
-   
+
    const getMeterTypeText = (type: string) => {
       switch (type) {
          case 'single-phase':
@@ -43,7 +44,7 @@ const MeterCardsWrapper = ({ metersData=[] }: { metersData: MeterDataType[] | []
       });
       setAllMeters(updatedMeters);
    }
- 
+
    return (
       <div className="grid grid-cols-1 gap-6 px-4 lg:px-6 xl:grid-cols-3 2xl:grid-cols-4">
          {allMeters?.length > 0 ? (
@@ -63,43 +64,43 @@ const MeterCardsWrapper = ({ metersData=[] }: { metersData: MeterDataType[] | []
                            variant={meter.isActive ? "default" : "destructive"}
                            className={`uppercase px-3 py-1 text-xs font-medium flex items-center gap-2 shadow-inner bg-primary/3 ${meter.isActive ? "text-emerald-700 border-white " : ""}`}>
                            <span className={`h-2.5 w-2.5 rounded-full ${meter.isActive ? "bg-emerald-700 animate-pulse" : "bg-red-600"}`} />
-                           {meter.isActive ? "Active" : "Inactive"}
+                           {meter.isActive ? dictionary.active : dictionary.inActive}
                         </Badge>
                      </div>
                   </CardHeader>
 
                   <CardContent className="space-y-6">
                      <div className={`rounded-xl bg-primary/3 py-6 px-4 text-center border shadow-inner ${meter.currentBalance <= meter.minimumRechargeThreshold ? "border-red-500 animate-caret-blink" : "border-primary/10"}`}>
-                        <p className="text-sm font-bold text-muted-foreground/70 uppercase tracking-widest mb-1">Current Balance</p>
+                        <p className="text-sm font-bold text-muted-foreground/70 uppercase tracking-widest mb-1">{dictionary.currentBalance}</p>
                         <div className="text-4xl font-extrabold text-primary tracking-tight">
-                           <span className={`${meter.currentBalance <= meter.minimumRechargeThreshold ? "text-red-500" : "text-white"}`}>{meter.currentBalance}</span> <span className="text-lg font-bold text-primary/60">TK</span>
+                           <span className={`${meter.currentBalance <= meter.minimumRechargeThreshold ? "text-red-500" : "text-white"}`}>{meter.currentBalance}</span> <span className="text-lg font-bold text-primary/60">{dictionary.tk}</span>
                         </div>
                      </div>
 
                      <div className="grid grid-cols-2 gap-y-5 gap-x-2">
                         <div className="space-y-1.5">
-                           <p className="text-xs uppercase text-muted-foreground font-extrabold tracking-tight">Threshold</p>
+                           <p className="text-xs uppercase text-muted-foreground font-extrabold tracking-tight">{dictionary.threshold}</p>
                            <div className="flex items-center gap-2 text-base font-semibold text-foreground">
                               <Gauge className="h-4 w-4 text-red-500" />
-                              {meter.minimumRechargeThreshold} <span className="text-xs text-muted-foreground">TK</span>
+                              {meter.minimumRechargeThreshold} <span className="text-xs text-muted-foreground">{dictionary.tk}</span>
                            </div>
                         </div>
                         <div className="space-y-1.5 text-right sm:text-left">
-                           <p className="text-xs uppercase text-muted-foreground font-extrabold tracking-tight">Sanction Load</p>
+                           <p className="text-xs uppercase text-muted-foreground font-extrabold tracking-tight">{dictionary.sanctionLoad}</p>
                            <div className="flex items-center gap-2 text-base font-semibold text-foreground justify-end sm:justify-start">
                               <Zap className="h-4 w-4 text-amber-500" />
                               {meter.sanctionLoad} <span className="text-xs text-muted-foreground">KW</span>
                            </div>
                         </div>
                         <div className="space-y-1.5">
-                           <p className="text-xs uppercase text-muted-foreground font-extrabold tracking-tight">Tariff Type</p>
+                           <p className="text-xs uppercase text-muted-foreground font-extrabold tracking-tight">{dictionary.tariffType}</p>
                            <div className="flex items-center gap-2 text-base font-semibold text-foreground">
                               <Activity className="h-4 w-4 text-blue-500" />
                               {meter.sanctionTariff}
                            </div>
                         </div>
                         <div className="space-y-1.5 text-right sm:text-left">
-                           <p className="text-xs uppercase text-muted-foreground font-extrabold tracking-tight">Meter Type</p>
+                           <p className="text-xs uppercase text-muted-foreground font-extrabold tracking-tight">{dictionary.meterType}</p>
                            <div className="flex items-center gap-2 text-base font-semibold text-foreground justify-end sm:justify-start">
                               <Grid2x2Check className="h-4 w-4 text-blue-500" />
                               {getMeterTypeText(meter.meterType)}
@@ -109,12 +110,12 @@ const MeterCardsWrapper = ({ metersData=[] }: { metersData: MeterDataType[] | []
 
                      <Separator className="opacity-60" />
 
-                     <CardButtons meterCurrentBalance={meter.currentBalance} onBalanceUpdate={onBalanceUpdate} mongoId={meter.id} onDeleteMeter={onDeleteMeter} isActive={meter.isActive} />
+                     <CardButtons dictionary={dictionary} meterCurrentBalance={meter.currentBalance} onBalanceUpdate={onBalanceUpdate} mongoId={meter.id} onDeleteMeter={onDeleteMeter} isActive={meter.isActive} />
                   </CardContent>
                   <CardFooter className="bg-muted/40 pb-4 [.border-t]:pt-4 border-t">
                      <div className="flex w-full items-center justify-center gap-2 text-sm text-muted-foreground font-semibold">
                         <Calendar className="h-4 w-4 opacity-70" />
-                        <span>Installed: {new Date(meter.meterInstallationDate).toLocaleDateString()}</span>
+                        <span>{dictionary.installed}: {new Date(meter.meterInstallationDate).toLocaleDateString()}</span>
                      </div>
                   </CardFooter>
                </Card>
@@ -124,7 +125,7 @@ const MeterCardsWrapper = ({ metersData=[] }: { metersData: MeterDataType[] | []
                <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-muted mb-4">
                   <Zap className="h-6 w-6 text-muted-foreground" />
                </div>
-               <p className="text-lg font-medium text-muted-foreground">No electric meters found.</p>
+               <p className="text-lg font-medium text-muted-foreground">{dictionary.noMeterFound}</p>
             </div>
          )}
       </div>

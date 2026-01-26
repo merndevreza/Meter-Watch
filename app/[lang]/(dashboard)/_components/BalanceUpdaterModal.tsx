@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { BalanceUpdaterModalProps } from '@/types/modal';
 import { toast } from 'sonner';
 
-const BalanceUpdaterModal = ({ currentBalance, mongoId, onBalanceUpdate, setShowModal, modalType }: BalanceUpdaterModalProps) => {
+const BalanceUpdaterModal = ({ dictionary, currentBalance, mongoId, onBalanceUpdate, setShowModal, modalType }: BalanceUpdaterModalProps) => {
    const [balance, setBalance] = useState<number>(currentBalance);
 
    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -41,7 +41,7 @@ const BalanceUpdaterModal = ({ currentBalance, mongoId, onBalanceUpdate, setShow
    return (
       <div className='w-full'>
          <div className='bg-muted p-3 rounded-lg my-4'>
-            <h3 className='text-center'>Current Balance: {balance} TK</h3>
+            <h3 className='text-center'>{dictionary.currentBalance}: {balance} {dictionary.tk}</h3>
          </div>
          <form onSubmit={handleSubmit}>
             <FieldGroup>

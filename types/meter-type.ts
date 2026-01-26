@@ -1,3 +1,5 @@
+import { Dictionary } from "./dictionary";
+
 export type MeterDataType = {
    id: string;
    meterName: string;
@@ -16,6 +18,7 @@ export type MeterDataType = {
 }
 
 export type MeterCardButtonsProps = {
+   dictionary:Dictionary;
    onDeleteMeter: (mongoId: string) => void;
    onBalanceUpdate: (mongoId: string, newBalance: number) => void;
    meterCurrentBalance: number;
