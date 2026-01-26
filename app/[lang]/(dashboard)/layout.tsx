@@ -1,4 +1,3 @@
-
 import { notFound, redirect } from 'next/navigation';
 import { getDictionary, hasLocale } from "../dictionaries/dictionaries";
 import { auth } from '@/auth';
@@ -10,7 +9,7 @@ import {
 } from "@/components/ui/sidebar"
 import { User } from '@/types/user';
 
-export default async function Overview({
+export default async function DashboardLayout({
    params,
    children
 }: {
@@ -40,7 +39,7 @@ export default async function Overview({
       >
          <AppSidebar lang={lang} user={session?.user as User} />
          <SidebarInset>
-            <SiteHeader />
+            <SiteHeader lang={lang} dictionary={dictionary}/>
             <main className='py-4 md:py-6'>
                {children}
             </main>

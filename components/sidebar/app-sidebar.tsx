@@ -14,19 +14,19 @@ import { CirclePlus, LayoutDashboard } from "lucide-react"
 import SiteLogo from "../SiteLogo"
 
 export function AppSidebar({ lang, user }: { lang: "en" | "bn"; user: User }) {
-  
-const navMain = [
-  {
-    title: "Dashboard",
-    url: `/${lang}`,
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Add Meter",
-    url: `/${lang}/add-edit-meter`,
-    icon: CirclePlus,
-  },
-];
+
+  const navMain = [
+    {
+      title: "Dashboard",
+      url: `/${lang}`,
+      icon: LayoutDashboard,
+    },
+    {
+      title: "Add Meter",
+      url: `/${lang}/add-edit-meter`,
+      icon: CirclePlus,
+    },
+  ];
   return (
     <Sidebar collapsible="offcanvas">
       <SidebarHeader>

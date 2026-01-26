@@ -10,7 +10,7 @@ import {
 import {
   Field,
   FieldDescription,
-  FieldGroup, 
+  FieldGroup,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
@@ -56,48 +56,37 @@ export function SignupForm() {
     }
   }
   return (
-    <Card>
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl">Create an account</CardTitle>
-        <CardDescription>
-          Sign up with your valid email address
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {error && (
-          <div className="mb-4 text-sm text-red-500">
-            {error}
-          </div>
-        )}
-        <form onSubmit={handleSubmit}>
-          <FieldGroup className="gap-2">
-            <Field>
-              <Input id="name" type="text" name="name" placeholder="Name" required />
-            </Field>
-            <Field>
-              <Input
-                id="email"
-                type="email"
-                name="email"
-                placeholder="Email"
-                required
-              />
-            </Field>
-            <Field className="mt-3">
-              <Input id="password" type="password" name="password" placeholder="Password" required />
-            </Field>
-            <Field>
-              <Input id="confirm-password" type="password" name="confirm-password" placeholder="Confirm Password" required />
-            </Field>
-            <Field className="mt-1">
-              <Button type="submit">Sign Up</Button>
-              <FieldDescription className="px-6 text-center pt-8">
-                Already have an account? <Link href="/login">Sign in</Link>
-              </FieldDescription>
-            </Field>
-          </FieldGroup>
-        </form>
-      </CardContent>
-    </Card>
+    <div>
+      {error && (
+        <p className="mb-4 text-sm text-red-500">
+          {error}
+        </p>
+      )}
+      <form onSubmit={handleSubmit}>
+        <FieldGroup className="gap-2">
+          <Field>
+            <Input id="name" type="text" name="name" placeholder="Name" required />
+          </Field>
+          <Field>
+            <Input
+              id="email"
+              type="email"
+              name="email"
+              placeholder="Email"
+              required
+            />
+          </Field>
+          <Field className="mt-3">
+            <Input id="password" type="password" name="password" placeholder="Password" required />
+          </Field>
+          <Field>
+            <Input id="confirm-password" type="password" name="confirm-password" placeholder="Confirm Password" required />
+          </Field>
+          <Field className="mt-1">
+            <Button type="submit">Sign Up</Button>
+          </Field>
+        </FieldGroup>
+      </form>
+    </div>
   )
 }

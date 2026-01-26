@@ -1,11 +1,10 @@
-import { Zap } from 'lucide-react';
-import React from 'react';
+import { Zap } from 'lucide-react'; 
 
 const SiteLogo = () => {
    return (
       <div className="flex gap-3">
          <Zap />
-         <span className="text-base font-semibold">Meter Watch</span>
+         <span className="text-lg font-semibold">Meter Watch</span>
       </div>
    );
 };
