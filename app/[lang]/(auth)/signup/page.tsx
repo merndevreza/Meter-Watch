@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { getDictionary, hasLocale } from "../../dictionaries/dictionaries";
 import { SignupForm } from "./_components/signup-form";
 import OAuthAndMagicLogin from "../_components/OAuthAndMagicLogin";
+import { Dictionary } from "@/types/dictionary";
 
 export default async function Page({ params }: { params: Promise<{ lang: "en" | "bn" }> }) {
   const { lang } = await params;
@@ -23,7 +24,7 @@ export default async function Page({ params }: { params: Promise<{ lang: "en" | 
         </CardHeader>
         <CardContent>
           <SignupForm />
-          <OAuthAndMagicLogin />
+          <OAuthAndMagicLogin dictionary={dictionary as Dictionary}/>
           <FieldDescription className="px-6 text-center pt-8">
             {dictionary.alreadyHaveAccount} <Link href={`/${lang}/login`}>{dictionary.loginTitle}</Link>
           </FieldDescription>
