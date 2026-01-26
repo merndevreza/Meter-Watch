@@ -20,6 +20,8 @@ export const POST = async (request: Request) => {
       if (alreadyExists) {
          return NextResponse.json({ success: false, message: "Meter already exists", status: 409 });
       }
+      console.log("session.user.id", session.user.id);
+      
       const newMeter = {
          meterName,
          meterNumber,
@@ -32,7 +34,7 @@ export const POST = async (request: Request) => {
          isActive: true,
          createdAt: new Date(),
          createdBy: session.user.email,
-         meterOwner: session.user.id,
+         meterOwner: session.user.email,
       }
       await Meters.create(newMeter);
       return NextResponse.json({ success: true, message: "Meter added successfully", status: 201 });
@@ -77,7 +79,7 @@ export const PUT = async (request: Request) => {
    try {
       await connectMongo();
       const updateResult = await Meters.updateOne(
-         { _id: mongoId, meterOwner: session.user.id },
+         { _id: mongoId, meterOwner: session.user.email },
          {
             $set: {
                isActive,

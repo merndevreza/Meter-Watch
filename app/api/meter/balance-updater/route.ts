@@ -15,7 +15,7 @@ export const PUT = async (request: Request) => {
    try {
       await connectMongo();
       const updateResult = await Meters.updateOne(
-         { _id: mongoId, meterOwner: session.user.id },
+         { _id: mongoId, meterOwner: session.user.email },
          {
             $set: {
                currentBalance: newBalance,

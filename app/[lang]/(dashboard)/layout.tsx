@@ -24,6 +24,7 @@ export default async function DashboardLayout({
 
    const dictionary = await getDictionary(currentLang);
    const session = await auth();
+ console.log("session--1",session);
  
    if (!session?.user) {
       redirect(`/${lang}/login`);
