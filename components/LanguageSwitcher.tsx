@@ -12,12 +12,13 @@ import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { LanguageSwitcherProp } from "@/types/language-switcher";
 
-const FormSchema = z.object({ 
+const FormSchema = z.object({
   locale: z.string().min(1, { message: "Please select a language." }),
 });
 
-const LanguageSwitcher = ({ dictionary, lang }) => {
+const LanguageSwitcher = ({ dictionary, lang }: LanguageSwitcherProp) => {
   const pathname = usePathname();
   const router = useRouter();
   const [selectedLocale, setSelectedLocale] = useState(lang || "en");
@@ -33,8 +34,8 @@ const LanguageSwitcher = ({ dictionary, lang }) => {
     }
   });
 
-  const handleLocaleChange = (value) => {
-    setSelectedLocale(value); 
+  const handleLocaleChange = (value: "bn" | "en") => {
+    setSelectedLocale(value);
     const newPath = pathname.replace(/(\/bn|\/en)/, `/${value}`);
     router.push(newPath);
   };
@@ -48,10 +49,10 @@ const LanguageSwitcher = ({ dictionary, lang }) => {
           render={({ field }) => (
             <FormItem>
               <Select
-                onValueChange={(value) => {
+                onValueChange={(value: "bn" | "en") => {
                   field.onChange(value);
                   handleLocaleChange(value);
-                }} 
+                }}
                 defaultValue={field.value}
               >
                 <FormControl>

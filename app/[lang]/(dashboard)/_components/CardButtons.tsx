@@ -1,12 +1,12 @@
 "use client";
-import ModalPortal from '@/components/Modals/ModalPortal';
+import ModalPortal from '@/components/modals/ModalPortal';
 import { Button } from '@/components/ui/button';
 import { MeterCardButtonsProps } from '@/types/meter-type';
 import { BanknoteArrowDown, BanknoteArrowUp, SquarePen, Trash } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import BalanceUpdaterModal from './BalanceUpdaterModal';
-import DeleteConfirmationModal from '@/components/Modals/DeleteConfirmationModal';
+import DeleteConfirmationModal from '@/components/modals/DeleteConfirmationModal';
 
 const CardButtons = ({ meterCurrentBalance, mongoId, onDeleteMeter, onBalanceUpdate, isActive }: MeterCardButtonsProps) => {
    const [showRechargeModal, setShowRechargeModal] = useState(false);

@@ -8,7 +8,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { Button } from "./ui/button"
+import { Button } from "../ui/button"
 import { IconLogout } from "@tabler/icons-react"
 import { signOut } from "next-auth/react"
 import { User } from "@/types/user"

@@ -27,10 +27,10 @@ export function NavMain({
         <SidebarMenu>
           {items.map((item) => (
             <Link key={item.title} href={item.url}>
-              <SidebarMenuItem >
-                <SidebarMenuButton tooltip={item.title}>
+              <SidebarMenuItem className={`${pathname === item.url || pathname === `${item.url}/`? "bg-sidebar-accent rounded-lg":""}`}>
+                <SidebarMenuButton size="lg" tooltip={item.title}>
                   {item.icon && <item.icon />}
-                  <span>{item.title}</span>
+                  <span className="text-[16px]">{item.title}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </Link>

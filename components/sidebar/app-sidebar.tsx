@@ -1,7 +1,7 @@
 "use client"
 
-import { NavMain } from "@/components/nav-main"
-import { NavUser } from "@/components/nav-user"
+import { NavMain } from "@/components/sidebar/nav-main"
+import { NavUser } from "@/components/sidebar/nav-user"
 import {
   Sidebar,
   SidebarContent,
@@ -10,29 +10,28 @@ import {
   SidebarMenu,
 } from "@/components/ui/sidebar"
 import { User } from "@/types/user"
-import { CirclePlus, LayoutDashboard, Zap } from "lucide-react"
+import { CirclePlus, LayoutDashboard } from "lucide-react"
+import SiteLogo from "../SiteLogo"
 
+export function AppSidebar({ lang, user }: { lang: "en" | "bn"; user: User }) {
+  
 const navMain = [
   {
     title: "Dashboard",
-    url: "/en",
+    url: `/${lang}`,
     icon: LayoutDashboard,
   },
   {
     title: "Add Meter",
-    url: "/add-edit-meter",
+    url: `/${lang}/add-edit-meter`,
     icon: CirclePlus,
   },
 ];
-export function AppSidebar({ user }: { user: User }) {
   return (
     <Sidebar collapsible="offcanvas">
       <SidebarHeader>
         <SidebarMenu>
-          <div className="flex gap-3">
-            <Zap />
-            <span className="text-base font-semibold">Meter Watch</span>
-          </div>
+          <SiteLogo />
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>

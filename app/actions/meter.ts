@@ -3,6 +3,7 @@ import { Meters } from '@/database/models/meter-model';
 import connectMongo from '@/database/services/connectMongo';
 import { replaceMongoIdInArray, replaceMongoIdInObject } from '@/lib/replaceMongoID';
 
+// get all meters of Logged in user
 export async function fetchUserMeters() {
       try {
             const session = await auth();
@@ -33,7 +34,7 @@ export async function fetchUserMeters() {
       }
 }
 
-// get meter by mongoId
+// get meter by Id
 export async function fetchMeterById(mongoId: string) {
       try {
             const session = await auth();
