@@ -21,7 +21,7 @@ const OAuthAndMagicLogin = ({dictionary}:{dictionary:Dictionary}) => {
          <Field className="mt-8">
             <div className="flex flex-wrap sm:flex-nowrap justify-between gap-4">
                <OAuthSignInBtn provider="google" />
-               <OAuthSignInBtn provider="github" />
+               {/* <OAuthSignInBtn provider="github" /> */}
             </div>
          </Field>
       </>

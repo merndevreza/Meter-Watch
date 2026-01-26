@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ⚡ Meter Watch
 
-## Getting Started
+**Meter Watch** is a secure, full-stack dashboard built to monitor electric meter balances for NESCO users. It bridges the gap between raw utility data and user-centric monitoring with automated alerts, multi-meter tracking, and a modern, responsive interface.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🚀 Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **🔐 Robust Authentication**
+  - Powered by **NextAuth.js v5 (Beta)**.
+  - Supports Credentials, OAuth (Google), and Magic Links.
+  - **Mandatory Email Verification:** Real-world email verification flow must be completed to access the dashboard.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **📊 Meter Management (CRUD)**
+  - Add, edit, and delete multiple meters per account.
+  - Set custom **Minimum Balance Thresholds** for each meter. 
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **⏰ Smart Automated Alerts**
+  - **Visual Cues:** Meters turn red/highlighted when the balance falls below the user-defined limit.
+  - **Cron Jobs:** Integrated with **Vercel Cron Jobs** to scan balances daily at **11:59 PM BST**.
+  - **Email Notifications:** Automatic alert emails sent via **Resend** to users with low-balance meters.
 
-## Learn More
+- **🌍 Premium UX/UI**
+  - **Internationalization (i18n):** Support for multiple languages (Bangla and English).
+  - **Theme Support:** Native Dark and Light mode via `next-themes`.
+  - **Resiliency:** Custom 404, Error boundaries, and loading states for a seamless feel.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🛠️ Tech Stack
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Layer | Technology |
+| :--- | :--- |
+| **Framework** | Next.js 16 (App Router), React 19 |
+| **Language** | TypeScript |
+| **Database** | MongoDB (Mongoose ODM) |
+| **Auth** | NextAuth.js v5 |
+| **Styling** | Tailwind CSS, Shadcn/UI |
+| **State/Forms** | React Hook Form + Zod |
+| **Email/Cron** | Resend, Vercel Cron |
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## ⚙️ Installation & Setup
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. **ENV variables**
+
+- NEXT_PUBLIC_BASE_URL
+- MONGO_URI
+- NODE_ENV
+- AUTH_SECRET
+- AUTH_GOOGLE_ID
+- AUTH_GOOGLE_SECRET
+- AUTH_GITHUB_ID
+- AUTH_GITHUB_SECRET
+- AUTH_RESEND_KEY
+- CRON_SECRET 
