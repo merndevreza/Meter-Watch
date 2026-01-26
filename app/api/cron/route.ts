@@ -31,7 +31,7 @@ export async function GET(request: Request) {
             if (!owner?.email) return; 
 
             await resend.emails.send({
-               from: 'onboarding@resend.dev',
+               from: 'meterwatch@webdevreza.xyz',
                to: owner.email,
                subject: `⚠️ Low Balance Alert: Meter ${meter.meterNumber}`,
                html: `
