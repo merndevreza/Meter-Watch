@@ -11,7 +11,7 @@ export function ResendSignInBtn() {
         await signIn("resend", formData, { redirectTo: "/" })
       }}
     >
-      <FieldGroup className="gap-1">
+      <FieldGroup className="gap-6">
         <Field> 
           <Input
             id="email"
