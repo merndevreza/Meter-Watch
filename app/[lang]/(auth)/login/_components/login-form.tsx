@@ -17,8 +17,8 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import { toast } from "sonner";
 
-// 1. Schema: Keep it simple for login
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email"),
   password: z.string().min(1, "Password is required"),
@@ -26,7 +26,7 @@ const loginSchema = z.object({
 
 type LoginValues = z.infer<typeof loginSchema>;
 
-export function LoginForm({ lang }: { lang: "en" | "bn" }) {
+export function LoginForm({ verified, lang }: { verified: string | undefined; lang: "en" | "bn" }) {
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [isPending, startTransition] = useTransition(); // Handle loading state gracefully
@@ -39,29 +39,30 @@ export function LoginForm({ lang }: { lang: "en" | "bn" }) {
 
   const onSubmit = async (values: LoginValues) => {
     setError(null);
-    
-    // Using startTransition helps React manage the UI during the async Server Action
+
     startTransition(async () => {
       try {
-        // We pass the raw values or a new FormData if your action specifically needs it
         const formData = new FormData();
         formData.append("email", values.email);
         formData.append("password", values.password);
 
         const response = await doCredentialsLogin(formData);
+        console.log("response", response);
 
         if (response?.error) {
           setError(response.error);
         } else {
           router.push(`/${lang}`);
-          router.refresh(); // Ensure the auth state is updated across the app
+          router.refresh();
         }
       } catch (err) {
         setError("Something went wrong. Please try again.");
       }
     });
   };
-
+  if (verified === "true") {
+    toast.success("Email verified successfully. Please Login.", { position: "top-center" })
+  }
   return (
     <div className="w-full space-y-4">
       {error && (

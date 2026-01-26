@@ -18,14 +18,19 @@ export default async function AuthLayout({
 
    const dictionary = await getDictionary(currentLang);
    const session = await auth();
+   console.log("session", session);
 
-   if (session?.user?.emailVerified) {
-      redirect(`/${lang}`);
+   if (session?.user) {
+      if (session?.user?.emailVerified) {
+         redirect(`/${lang}`);
+      } else {
+         redirect(`/${lang}/verify-email`);
+      }
    }
    return (
       <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
          <div className="w-full max-w-xl">
-            <AuthHeader lang={lang}/>
+            <AuthHeader lang={lang} />
             {children}
          </div>
       </div>

@@ -49,7 +49,7 @@ const meterSchema = new Schema({
       required: true,
    },
    meterOwner: {
-      type: Schema.Types.ObjectId,
+      type: String,
       ref: "Users",
       required: true,
    },

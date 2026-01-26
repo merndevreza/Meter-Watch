@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
 import { ThemeProvider } from "@/context-providers/Providers/ThemeProvider";
 import connectMongo from "@/database/services/connectMongo";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,6 +39,7 @@ export default async function RootLayout({
         >
           {children}
         </ThemeProvider>
+        <Toaster  />
         <div id='modal-portal'></div>
       </body>
     </html>

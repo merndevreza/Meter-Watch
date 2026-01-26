@@ -14,12 +14,17 @@ import {
 import { LoginForm } from "./_components/login-form";
 import OAuthAndMagicLogin from "../_components/OAuthAndMagicLogin";
 import { getDictionary, hasLocale } from "../../dictionaries/dictionaries";
+import { toast } from "sonner";
 
-export default async function Page({ params }: { params: Promise<{ lang: "en" | "bn" }> }) {
+export default async function Page({ searchParams, params }: {
+  searchParams: Promise<{ [key: string]: string | undefined }>;
+  params: Promise<{ lang: "en" | "bn" }>
+}) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
   const dictionary = await getDictionary(lang);
-
+  const { verified } = await searchParams;
+ 
   return (
     <div className={cn("flex flex-col gap-6")}>
       <Card>
@@ -30,7 +35,7 @@ export default async function Page({ params }: { params: Promise<{ lang: "en" | 
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <LoginForm lang={lang} />
+          <LoginForm verified={verified} lang={lang} />
           <OAuthAndMagicLogin />
           <FieldDescription className="text-center pt-8">
             Don&apos;t have an account? <Link href={`/${lang}/signup`}>Sign up</Link>

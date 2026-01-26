@@ -24,22 +24,26 @@ export default async function DashboardLayout({
 
    const dictionary = await getDictionary(currentLang);
    const session = await auth();
-   
-   if (!session?.user?.emailVerified) {
+ 
+   if (!session?.user) {
       redirect(`/${lang}/login`);
+   } else {
+      if (!session?.user?.emailVerified) {
+         redirect(`/${lang}/verify-email`);
+      }
    }
    return (
       <SidebarProvider
          style={
             {
                "--sidebar-width": "calc(var(--spacing) * 72)",
-               "--header-height": "calc(var(--spacing) * 12)",
+               "--header-height": "calc(var(--spacing) * 18)",
             } as React.CSSProperties
          }
       >
          <AppSidebar lang={lang} user={session?.user as User} />
          <SidebarInset>
-            <SiteHeader lang={lang} dictionary={dictionary}/>
+            <SiteHeader lang={lang} user={session?.user as User} />
             <main className='py-4 md:py-6'>
                {children}
             </main>

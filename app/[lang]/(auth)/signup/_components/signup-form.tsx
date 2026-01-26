@@ -17,7 +17,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-// 1. Define Validation Schema
+// Zod Validation Schema
 const signupSchema = z.object({
   name: z.string().min(2, "Name is too short"),
   email: z.string().email("Invalid email address"),
@@ -39,7 +39,7 @@ export function SignupForm() {
     defaultValues: { name: "", email: "", password: "", confirmPassword: "" },
   });
 
-  // 2. Password Strength Logic
+  // Password Strength check
   const password = form.watch("password");
   
   const strengthRequirements = useMemo(() => [
@@ -65,6 +65,8 @@ export function SignupForm() {
         body: JSON.stringify(values),
       });
       const data = await response.json();
+      console.log("signup data", data);
+      
       if (data.success) router.push("/login");
     } catch (error) {
       console.error(error);

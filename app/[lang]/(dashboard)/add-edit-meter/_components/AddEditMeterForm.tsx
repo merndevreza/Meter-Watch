@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import {
    Card,
    CardContent,
+   CardDescription,
    CardHeader,
    CardTitle,
 } from "@/components/ui/card"
@@ -16,53 +17,43 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { AddMeterFormProps, EditMeterFormProps, MeterDataType } from "@/types/meter-type";
+import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { toast } from "sonner";
 
 
 const AddEditMeterForm = ({ meterData, mongoId }: { meterData?: MeterDataType; mongoId?: string | undefined }) => {
-   const [error, setError] = useState<string | null>(null); 
+   const [error, setError] = useState<string | null>(null);
    const [isActive, setIsActive] = useState<boolean>(meterData?.isActive ?? false);
    const [meterType, setMeterType] = useState<string>(meterData?.meterType ?? "single-phase");
+   const [isPending, startTransition] = useTransition();
 
    const router = useRouter();
 
-   const handleAddMeter = async (data: AddMeterFormProps) => {
-      try {
-         const response = await fetch("/api/meter", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-         });
-         const result = await response.json();
+   const handleAddEditMeter = async (type: "add" | "edit", data: EditMeterFormProps | AddMeterFormProps) => {
+      const method = type === "add" ? "POST" : "PUT"
+      startTransition(async () => {
+         try {
+            const response = await fetch("/api/meter", {
+               method,
+               headers: { "Content-Type": "application/json" },
+               body: JSON.stringify(data),
+            });
+            const result = await response.json();
 
-         if (result.success) {
-            router.push("/");
-         } else {
-            setError(result.message);
+            if (result.success) {
+               toast.success(`${type === "add" ? "Meter added successfully" : "Meter updated successfully"}`, { position: "top-right" })
+               setTimeout(() => {
+                  router.push("/");
+               }, 1000);
+            } else {
+               setError(result.message);
+            }
+         } catch (error) {
+            setError(type === "add" ? "Failed to add meter" : "Failed to update meter");
          }
-      } catch (error) {
-         setError("Failed to add meter");
-      }
-   }
-
-   const handleEditMeter = async (data: EditMeterFormProps) => {
-      try {
-         const response = await fetch("/api/meter", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-         });
-         const result = await response.json();
-
-         if (result.success) {
-            router.push("/"); 
-         } else {
-            setError(result.message);
-         }
-      } catch (error) {
-         setError("Failed to update meter");
-      }
+      })
    }
 
    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -74,7 +65,7 @@ const AddEditMeterForm = ({ meterData, mongoId }: { meterData?: MeterDataType; m
          meterNumber: formData.get("meter-number") as string,
          sanctionLoad: formData.get("sanction-load") as string,
          sanctionTariff: formData.get("sanction-tariff") as string,
-         meterType: meterType, // Using state for Select
+         meterType: meterType,
          minimumRechargeThreshold: formData.get("minimum-recharge-threshold") as string,
          meterInstallationDate: formData.get("meter-installation-date") as string,
       };
@@ -85,16 +76,16 @@ const AddEditMeterForm = ({ meterData, mongoId }: { meterData?: MeterDataType; m
             isActive,
             mongoId
          }
-         await handleEditMeter(editData);
+         await handleAddEditMeter("edit", editData);
       } else {
-         await handleAddMeter(addData);
+         await handleAddEditMeter("add", addData);
       }
    }
 
    return (
       <Card>
-         <CardHeader>
-            <CardTitle>{mongoId ? "Edit Meter" : "Add Meter"}</CardTitle>
+         <CardHeader className="text-center">
+            <CardTitle className="text-2xl">{mongoId ? "Edit Meter" : "Add New Meter"}</CardTitle>
          </CardHeader>
          <CardContent>
             {error && <div className="mb-4 text-sm text-red-500">{error}</div>}
@@ -204,7 +195,8 @@ const AddEditMeterForm = ({ meterData, mongoId }: { meterData?: MeterDataType; m
                   </Field>
 
                   <FieldGroup>
-                     <Button type="submit">
+                     <Button type="submit" className="w-full" disabled={isPending}>
+                        {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         {mongoId ? "Update Meter" : "Add Meter"}
                      </Button>
                   </FieldGroup>

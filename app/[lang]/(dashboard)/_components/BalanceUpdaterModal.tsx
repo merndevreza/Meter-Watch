@@ -8,6 +8,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { BalanceUpdaterModalProps } from '@/types/modal';
+import { toast } from 'sonner';
 
 const BalanceUpdaterModal = ({ currentBalance, mongoId, onBalanceUpdate, setShowModal, modalType }: BalanceUpdaterModalProps) => {
    const [balance, setBalance] = useState<number>(currentBalance);
@@ -28,7 +29,7 @@ const BalanceUpdaterModal = ({ currentBalance, mongoId, onBalanceUpdate, setShow
          if (response.status === 200) {
             setBalance(newBalance);
             onBalanceUpdate(mongoId, newBalance);
-
+            toast.success(`${modalType === "recharge" ? "Recharged successfully" : "Balance used successfully"}`, { position: "top-center" })
             setTimeout(() => {
                setShowModal(false);
             }, 1000);
