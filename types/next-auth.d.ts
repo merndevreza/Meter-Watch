@@ -3,18 +3,20 @@ import NextAuth, { DefaultSession } from "next-auth"
 declare module "next-auth" {
   interface Session {
     user: {
-      id: string;
-      emailVerified: Date | null
+      id: string; 
+      emailVerified: Date | null;
     } & DefaultSession["user"]
   }
 
   interface User {
-    emailVerified?: Date | null
+    _id?: string; 
+    emailVerified?: Date | null;
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
-    emailVerified: Date | null; // Must match exactly
+    sub: string;
+    emailVerified: Date | null;
   }
 }

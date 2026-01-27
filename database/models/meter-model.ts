@@ -44,12 +44,12 @@ const meterSchema = new Schema({
       default: Date.now,
    },
    createdBy: {
-      type: String,
+      type: Schema.Types.ObjectId,
       ref: "Users",
       required: true,
    },
    meterOwner: {
-      type: String,
+      type: Schema.Types.ObjectId,
       ref: "Users",
       required: true,
    },

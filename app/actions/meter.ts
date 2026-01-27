@@ -12,7 +12,7 @@ export async function fetchUserMeters() {
             }
 
             await connectMongo();
-            const meters = await Meters.find({ meterOwner: session.user.email })
+            const meters = await Meters.find({ meterOwner: session.user.id })
                   .sort({ createdAt: -1 })
                   .lean();
 

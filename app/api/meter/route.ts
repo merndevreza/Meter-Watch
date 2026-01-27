@@ -33,8 +33,8 @@ export const POST = async (request: Request) => {
          currentBalance: 0,
          isActive: true,
          createdAt: new Date(),
-         createdBy: session.user.email,
-         meterOwner: session.user.email,
+         createdBy: session.user.id,
+         meterOwner: session.user.id,
       }
       await Meters.create(newMeter);
       return NextResponse.json({ success: true, message: "Meter added successfully", status: 201 });
@@ -79,7 +79,7 @@ export const PUT = async (request: Request) => {
    try {
       await connectMongo();
       const updateResult = await Meters.updateOne(
-         { _id: mongoId, meterOwner: session.user.email },
+         { _id: mongoId, meterOwner: session.user.id },
          {
             $set: {
                isActive,

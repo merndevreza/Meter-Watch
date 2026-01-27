@@ -16,6 +16,7 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import { toast } from "sonner";
 
 // Zod Validation Schema
 const signupSchema = z.object({
@@ -41,7 +42,7 @@ export function SignupForm() {
 
   // Password Strength check
   const password = form.watch("password");
-  
+
   const strengthRequirements = useMemo(() => [
     { label: "8+ characters", met: password.length >= 8 },
     { label: "A number", met: /[0-9]/.test(password) },
@@ -65,9 +66,12 @@ export function SignupForm() {
         body: JSON.stringify(values),
       });
       const data = await response.json();
-      console.log("signup data", data);
-      
-      if (data.success) router.push("/login");
+      if (data.success) {
+        toast.success("Please check your email. We have send a verification email.", { position: "top-center" })
+        setTimeout(() => {
+          router.push("/login");
+        }, 1000);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -105,10 +109,10 @@ export function SignupForm() {
             <FormItem>
               <div className="relative">
                 <FormControl>
-                  <Input 
-                    type={showPassword ? "text" : "password"} 
-                    placeholder="Password" 
-                    {...field} 
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Password"
+                    {...field}
                   />
                 </FormControl>
                 <Button
@@ -129,14 +133,13 @@ export function SignupForm() {
                     {[...Array(4)].map((_, i) => (
                       <div
                         key={i}
-                        className={`h-full w-full rounded-full transition-colors duration-300 ${
-                          i < strengthScore ? getStrengthColor(strengthScore) : "bg-muted"
-                        }`}
+                        className={`h-full w-full rounded-full transition-colors duration-300 ${i < strengthScore ? getStrengthColor(strengthScore) : "bg-muted"
+                          }`}
                       />
                     ))}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {strengthScore < 4 
+                    {strengthScore < 4
                       ? `Missing: ${strengthRequirements.find(r => !r.met)?.label}`
                       : "Strong password!"}
                   </p>

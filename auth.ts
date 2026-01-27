@@ -49,7 +49,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                   throw new Error("Email or password is incorrect");
                }
 
-               return foundUser;
+               // Return user object with _id converted to string as 'id'
+               return {
+                  id: foundUser._id.toString(),
+                  email: foundUser.email,
+                  name: foundUser.name,
+                  image: foundUser.image,
+                  emailVerified: foundUser.emailVerified,
+               };
             } catch (error) {
                throw new Error(error instanceof Error ? error.message : String(error));
             }
@@ -57,9 +64,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       })
    ],
    callbacks: {
-      // Adding emailVerified to session
-      async jwt({ token, user }) { 
+      async jwt({ token, user, account }) { 
          if (user) { 
+            token.sub = user.id;
             token.emailVerified = user.emailVerified;
          }
          return token;
@@ -72,7 +79,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
          return session;
       },
       async signIn({ user, account, profile }) {
-         // If the user is logging in via OAuth (Google/GitHub)
          if (account?.provider !== "credentials" && account?.provider !== "resend") {
             const isEmailVerified = profile?.email_verified || profile?.verified || true;
 
@@ -85,7 +91,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
    },
    events: {
       async linkAccount({ user }) {
-         // update the user emailVerified as Google verified them
          await connectMongo();
          await Users.findByIdAndUpdate(user.id, { emailVerified: new Date() });
       },
