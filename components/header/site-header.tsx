@@ -16,7 +16,7 @@ export function SiteHeader({ user, lang }: { lang: "en" | "bn", user: User }) {
           className="mx-2 data-[orientation=vertical]:h-4"
         />
          <div className="flex items-center gap-3" >
-          <Avatar className="h-8 w-8 rounded-lg grayscale flex items-center justify-end">
+          <Avatar className="h-8 w-8 rounded-lg flex items-center justify-end">
             {user?.image ? <AvatarImage src={user?.image} alt={user.name} /> : <CircleUserRound />}
           </Avatar>
           <div className="grid flex-1 text-left text-sm leading-tight">
