@@ -14,7 +14,7 @@ const OAuthSignInBtn = ({ provider }: OAuthSignInBtnProps) => {
          }}
          className="w-full"
       >
-         <Button className="w-full" type="submit">Signin with {provider.charAt(0).toUpperCase() + provider.slice(1)}</Button>
+         <Button className="w-full" type="submit">Sign in with {provider.charAt(0).toUpperCase() + provider.slice(1)}</Button>
       </form>
    );
 };

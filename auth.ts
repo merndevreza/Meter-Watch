@@ -7,7 +7,18 @@ import Resend from "next-auth/providers/resend"
 import client from "@/database/services/mongoClient"
 import connectMongo from "./database/services/connectMongo"
 import { Users } from "./database/models/user-model"
-import bcrypt from "bcryptjs";
+import bcrypt from "bcryptjs"
+import { ObjectId } from "mongodb"
+
+interface UserDocument {
+   _id: string | ObjectId;
+   name?: string;
+   email?: string;
+   emailVerified?: Date | null;
+   image?: string;
+   password?: string;
+   verificationToken?: string;
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
    adapter: MongoDBAdapter(client),
@@ -15,11 +26,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       strategy: "jwt",
    },
    providers: [
-      Google,
-      GitHub,
+      Google({
+         allowDangerousEmailAccountLinking: true, // Allow multiple ways of login using same email
+      }),
+      GitHub({
+         allowDangerousEmailAccountLinking: true, // Allow multiple ways of login using same email
+      }),
       Resend({
          apiKey: process.env.AUTH_RESEND_KEY,
-         from: "meterwatch@webdevreza.xyz", 
+         from: "meterwatch@webdevreza.xyz",
       }),
       CredentialProvider({
          credentials: {
@@ -49,7 +64,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                   throw new Error("Email or password is incorrect");
                }
 
-               // Return user object with _id converted to string as 'id'
                return {
                   id: foundUser._id.toString(),
                   email: foundUser.email,
@@ -64,35 +78,51 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       })
    ],
    callbacks: {
-      async jwt({ token, user, account }) { 
-         if (user) { 
+      async jwt({ token, user, account }) {
+         // On sign in (when user object is present)
+         if (user) {
             token.sub = user.id;
             token.emailVerified = user.emailVerified;
+
+            // If it's an OAuth sign in and emailVerified is null, update it
+            if (account && account.provider !== "credentials" && account.provider !== "resend" && !user.emailVerified) {
+               try {
+                  const mongoClient = await client;
+                  const db = mongoClient.db();
+                  const usersCollection = db.collection<UserDocument>("users");
+
+                  const now = new Date();
+
+                  // Ensure user.id exists and convert to ObjectId
+                  if (!user.id) {
+                     throw new Error("User ID is missing");
+                  }
+
+                  const userId = ObjectId.isValid(user.id)
+                     ? new ObjectId(user.id)
+                     : user.id;
+
+                  await usersCollection.updateOne(
+                     { _id: userId },
+                     { $set: { emailVerified: now } }
+                  );
+
+                  // Update the token with the new emailVerified value
+                  token.emailVerified = now;
+               } catch (error) {
+                  console.error("Failed to update emailVerified:", error);
+               }
+            }
          }
+
          return token;
       },
       async session({ session, token }) {
-         if (session.user) {
-            session.user.id = token.sub as string;
-            (session.user as any).emailVerified = token.emailVerified;
+         if (session.user && token.sub) {
+            session.user.id = token.sub;
+            session.user.emailVerified = token.emailVerified as Date | null;
          }
          return session;
       },
-      async signIn({ user, account, profile }) {
-         if (account?.provider !== "credentials" && account?.provider !== "resend") {
-            const isEmailVerified = profile?.email_verified || profile?.verified || true;
-
-            if (isEmailVerified && !user.emailVerified) {
-               return true;
-            }
-         }
-         return true;
-      },
    },
-   events: {
-      async linkAccount({ user }) {
-         await connectMongo();
-         await Users.findByIdAndUpdate(user.id, { emailVerified: new Date() });
-      },
-   }
 })

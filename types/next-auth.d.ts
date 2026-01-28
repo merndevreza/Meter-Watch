@@ -17,6 +17,6 @@ declare module "next-auth" {
 declare module "next-auth/jwt" {
   interface JWT {
     sub: string;
-    emailVerified: Date | null;
+    emailVerified?: Date | null;
   }
 }
