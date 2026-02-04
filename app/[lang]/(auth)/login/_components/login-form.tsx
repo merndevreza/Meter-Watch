@@ -71,7 +71,6 @@ export function LoginForm({ dictionary, verified, lang }: { dictionary: Dictiona
           {error}
         </div>
       )}
-
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField

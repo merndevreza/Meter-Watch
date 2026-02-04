@@ -10,27 +10,15 @@ import {
 } from "@/components/ui/card"
 import { Zap, Calendar, Activity, Gauge, Grid2x2Check } from "lucide-react";
 import { Separator } from '@/components/ui/separator';
-import { MeterDataType } from '@/types/meter-type';
+import { NescoMeterDataType } from '@/types/meter-type';
 import CardButtons from './CardButtons';
 import { useState } from "react";
 import { Dictionary } from "@/types/dictionary";
 
-const MeterCardsWrapper = ({ dictionary, metersData = [] }: { dictionary: Dictionary; metersData: MeterDataType[] | [] }) => {
-   const [allMeters, setAllMeters] = useState<MeterDataType[]>(metersData);
+const MeterCardsWrapper = ({ dictionary, metersData = [] }: { dictionary: Dictionary; metersData: NescoMeterDataType[] | [] }) => {
+   const [allMeters, setAllMeters] = useState<NescoMeterDataType[]>(metersData);
 
 
-   const getMeterTypeText = (type: string) => {
-      switch (type) {
-         case 'single-phase':
-            return "Single Phase Meter";
-         case 'two-phase':
-            return "Two Phase Meter";
-         case 'three-phase':
-            return "Three Phase Meter";
-         default:
-            return type;
-      }
-   }
    const onDeleteMeter = (mongoId: string) => {
       const updatedMeters = allMeters.filter(meter => meter.id !== mongoId);
       setAllMeters(updatedMeters);
@@ -44,66 +32,88 @@ const MeterCardsWrapper = ({ dictionary, metersData = [] }: { dictionary: Dictio
       });
       setAllMeters(updatedMeters);
    }
-
+   // {
+   //   "_id": {
+   //     "$oid": "69802dddb31e74e9a91c32d2"
+   //   }, 
+   //   "userId": "697a3ab0b04417522bb95192",
+   //   "__v": 0,
+   //   "address": "PADMA R/A ,RAJSHAHI",
+   //   "createdAt": {
+   //     "$date": "2026-02-02T04:53:49.398Z"
+   //   },
+   //   "customerName": "MD MOINUL HAQUE",
+   //   "mobile": "+880 155*****72",   
+   //   "electricityOffice": "Rajshahi S&D3",
+   //   "fatherHusbandName": "",
+   //   "feederName": "Padma", 
+   //   "meterInstallationDate": "27/08/2025 13:34:55", 
+   //   "meterStatus": "Install With Active",  
+   //   "updatedAt": {
+   //     "$date": "2026-02-02T04:53:49.398Z"
+   //   }
+   // }
+   // console.log("allMeters",allMeters);
+   
    return (
-      <div className="grid grid-cols-1 gap-6 px-4 lg:px-6 xl:grid-cols-3 2xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-6 px-4 lg:px-6 xl:gap-8 xl:px-8 xl:grid-cols-2 2xl:grid-cols-4">
          {allMeters?.length > 0 ? (
-            allMeters.map((meter: MeterDataType) => (
+            allMeters.map((meter: NescoMeterDataType) => (
                <Card key={meter.id} className="overflow-hidden transition-all pb-0 hover:shadow-lg border-muted-foreground/20">
-                  <CardHeader className="space-y-2 pb-5">
+                  <CardHeader className="space-y-2">
                      <div className="flex items-start justify-between">
                         <div className="space-y-1">
                            <CardTitle className="text-2xl font-bold tracking-tight text-foreground">
-                              {meter.meterName}
+                              {meter?.meterName}
                            </CardTitle>
                            <CardDescription className="font-mono text-sm font-medium text-muted-foreground/80">
-                              ID: {meter.meterNumber}
+                              Consumer ID: {meter.consumerNumber} <br />
+                              Consumer Name: {meter.customerName}
                            </CardDescription>
                         </div>
                         <Badge
-                           variant={meter.isActive ? "default" : "destructive"}
-                           className={`uppercase px-3 py-1 text-xs font-medium flex items-center gap-2 shadow-inner bg-primary/3 ${meter.isActive ? "text-emerald-700 border-white " : ""}`}>
-                           <span className={`h-2.5 w-2.5 rounded-full ${meter.isActive ? "bg-emerald-700 animate-pulse" : "bg-red-600"}`} />
-                           {meter.isActive ? dictionary.active : dictionary.inActive}
+                           variant="default"
+                           className={`px-3 py-1 text-sm font-medium flex items-center gap-2 shadow-inner border-secondary bg-primary/30 text-muted-foreground/80`}>
+                           Meter ID: {meter.meterNumber}
                         </Badge>
                      </div>
                   </CardHeader>
 
                   <CardContent className="space-y-6">
-                     <div className={`rounded-xl bg-primary/3 py-6 px-4 text-center border shadow-inner ${meter.currentBalance <= meter.minimumRechargeThreshold ? "border-red-500 animate-caret-blink" : "border-primary/10"}`}>
+                     <div className={`rounded-xl bg-primary/3 py-6 px-4 text-center border shadow-inner ${meter.remainingBalance <= meter.minimumRechargeAmount ? "border-red-500 animate-caret-blink" : "border-primary/10"}`}>
                         <p className="text-sm font-bold text-muted-foreground/70 uppercase tracking-widest mb-1">{dictionary.currentBalance}</p>
                         <div className="text-4xl font-extrabold text-primary tracking-tight">
-                           <span className={`${meter.currentBalance <= meter.minimumRechargeThreshold ? "text-red-500" : "text-white"}`}>{meter.currentBalance}</span> <span className="text-lg font-bold text-primary/60">{dictionary.tk}</span>
+                           <span className={`${meter.remainingBalance <= meter.minimumRechargeAmount ? "text-red-500" : "text-white"}`}>{meter.remainingBalance}</span> <span className="text-lg font-bold text-primary/60">{dictionary.tk}</span>
                         </div>
-                     </div>
+                     </div> 
 
                      <div className="grid grid-cols-2 gap-y-5 gap-x-2">
                         <div className="space-y-1.5">
                            <p className="text-xs uppercase text-muted-foreground font-extrabold tracking-tight">{dictionary.threshold}</p>
                            <div className="flex items-center gap-2 text-base font-semibold text-foreground">
                               <Gauge className="h-4 w-4 text-red-500" />
-                              {meter.minimumRechargeThreshold} <span className="text-xs text-muted-foreground">{dictionary.tk}</span>
+                              {meter.minimumRechargeAmount} <span className="text-xs text-muted-foreground">{dictionary.tk}</span>
                            </div>
                         </div>
                         <div className="space-y-1.5 text-right sm:text-left">
                            <p className="text-xs uppercase text-muted-foreground font-extrabold tracking-tight">{dictionary.sanctionLoad}</p>
                            <div className="flex items-center gap-2 text-base font-semibold text-foreground justify-end sm:justify-start">
                               <Zap className="h-4 w-4 text-amber-500" />
-                              {meter.sanctionLoad} <span className="text-xs text-muted-foreground">KW</span>
+                              {meter.sanctionedLoadKw} <span className="text-xs text-muted-foreground">KW</span>
                            </div>
                         </div>
                         <div className="space-y-1.5">
                            <p className="text-xs uppercase text-muted-foreground font-extrabold tracking-tight">{dictionary.tariffType}</p>
                            <div className="flex items-center gap-2 text-base font-semibold text-foreground">
                               <Activity className="h-4 w-4 text-blue-500" />
-                              {meter.sanctionTariff}
+                              {meter.tariff}
                            </div>
                         </div>
                         <div className="space-y-1.5 text-right sm:text-left">
                            <p className="text-xs uppercase text-muted-foreground font-extrabold tracking-tight">{dictionary.meterType}</p>
                            <div className="flex items-center gap-2 text-base font-semibold text-foreground justify-end sm:justify-start">
                               <Grid2x2Check className="h-4 w-4 text-blue-500" />
-                              {getMeterTypeText(meter.meterType)}
+                              {meter.meterType}
                            </div>
                         </div>
                      </div>
@@ -115,7 +125,7 @@ const MeterCardsWrapper = ({ dictionary, metersData = [] }: { dictionary: Dictio
                   <CardFooter className="bg-muted/40 pb-4 [.border-t]:pt-4 border-t">
                      <div className="flex w-full items-center justify-center gap-2 text-sm text-muted-foreground font-semibold">
                         <Calendar className="h-4 w-4 opacity-70" />
-                        <span>{dictionary.installed}: {new Date(meter.meterInstallationDate).toLocaleDateString()}</span>
+                        <span>Last Updated: {new Date(meter.updatedAt).toLocaleDateString()}</span>
                      </div>
                   </CardFooter>
                </Card>

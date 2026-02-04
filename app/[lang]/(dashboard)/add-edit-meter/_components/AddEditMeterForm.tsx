@@ -82,10 +82,19 @@ const AddEditMeterForm = ({dictionary, meterData, mongoId }: {dictionary:Diction
          await handleAddEditMeter("add", addData);
       }
    }
-
+  const handleScrapping = async () => {
+    const res = await fetch('/api/scrape', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ customerNumber: '32016975' }),
+    });
+    const data = await res.json();
+    console.log("data", data);
+  }
    return (
       <Card>
-         <CardHeader className="text-center">
+         <CardHeader className="text-center"> 
+      <button onClick={handleScrapping}>scrap</button>
             <CardTitle className="text-2xl">{mongoId ? "Edit Meter" : "Add New Meter"}</CardTitle>
          </CardHeader>
          <CardContent>

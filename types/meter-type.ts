@@ -16,9 +16,24 @@ export type MeterDataType = {
    meterOwner?: string;
    updatedAt?: string;
 }
-
+export type NescoMeterDataType = {
+   id: string;
+   meterName: string;
+   consumerNumber: string;
+   customerName: string;
+   mobile: string;
+   meterNumber: string;
+   meterStatus: string;
+   meterType: string;
+   sanctionedLoadKw: string;
+   tariff: string;
+   meterInstallationDate: string;
+   minimumRechargeAmount: string;
+   remainingBalance: string;
+   updatedAt: string;
+}
 export type MeterCardButtonsProps = {
-   dictionary:Dictionary;
+   dictionary: Dictionary;
    onDeleteMeter: (mongoId: string) => void;
    onBalanceUpdate: (mongoId: string, newBalance: number) => void;
    meterCurrentBalance: number;
