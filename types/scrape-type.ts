@@ -48,9 +48,14 @@ export interface MonthlyConsumption {
   monthEndMeterBalance: string;
   energyUsageKwh: string;
 }
-
+export interface ArrearNotice {
+  hasNotice: boolean;
+  noticeMessage: string | null;
+  noticeLastChecked?: Date;
+}
 export interface ScrapedData {
-  customer: CustomerData; 
+  customer: CustomerData;
   rechargeHistory: RechargeRecord[];
   monthlyConsumption?: MonthlyConsumption[];
+  notice: ArrearNotice
 }

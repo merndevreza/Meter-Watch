@@ -25,7 +25,7 @@ export interface ICustomer extends Document {
 
   // Balance Information
   minimumRechargeAmount: number;
-  remainingBalance: number; 
+  remainingBalance: number;
 
   // User Association
   userId: string; // The user who added this customer
@@ -74,7 +74,9 @@ const CustomerSchema: Schema = new Schema(
       unique: true, // Consumer number should be unique
       index: true,
     },
-
+    hasNotice: { type: Boolean, default: false },
+    noticeMessage: { type: String, default: null },
+    noticeLastChecked: { type: Date },
     // Meter Information
     meterName: {
       type: String,
@@ -114,7 +116,7 @@ const CustomerSchema: Schema = new Schema(
     remainingBalance: {
       type: Number,
       default: 0,
-    }, 
+    },
     // User Association
     userId: {
       type: String,

@@ -31,14 +31,17 @@ export type NescoMeterDataType = {
    minimumRechargeAmount: string;
    remainingBalance: string;
    updatedAt: string;
+   hasNotice: boolean;
+   noticeMessage: string | null;
+   noticeLastChecked?: Date;
 }
 export type MeterCardButtonsProps = {
    dictionary: Dictionary;
    onDeleteMeter: (mongoId: string) => void;
-   onBalanceUpdate: (mongoId: string, newBalance: number) => void;
-   meterCurrentBalance: number;
-   mongoId: string;
-   isActive: boolean;
+   onThresholdUpdate: (mongoId: string, newBalance: number) => void; 
+   consumerNumber: string; 
+   currentThreshold:string;
+   meterName: string;
 }
 
 export type AddMeterFormProps = {

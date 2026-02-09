@@ -1,5 +1,5 @@
-import { CheerioAPI } from 'cheerio'; 
-import { CustomerData, RechargeRecord, MonthlyConsumption } from '@/types/scrape-type'; 
+import { CheerioAPI } from 'cheerio';
+import { CustomerData, RechargeRecord, MonthlyConsumption, ArrearNotice } from '@/types/scrape-type';
 // Unescapes HTML entities in a string
 function unescapeHtml(str: string): string {
   return str
@@ -98,4 +98,41 @@ export function extractMonthlyConsumption($: CheerioAPI): MonthlyConsumption[] {
     })
     .get()
     .filter((record: MonthlyConsumption | null): record is MonthlyConsumption => record !== null);
+}
+
+export function extractNotice($: CheerioAPI): ArrearNotice {
+  const noticeDiv = $('#arrear_notice_div');
+
+  // Check if notice div exists and is visible
+  if (!noticeDiv.length || noticeDiv.css('display') === 'none') {
+    return {
+      hasNotice: false,
+      noticeMessage: null
+    };
+  }
+
+  try {
+    // Get the label text which contains the notice message
+    const noticeLabel = noticeDiv.find('label.control-label');
+    const noticeText = noticeLabel.text();
+
+    // Get the full message text and clean it up
+    const noticeMessage = noticeText
+      .trim()
+      .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+      .replace(/\n\s*\n/g, '\n'); // Clean up excessive newlines
+
+    console.log("noticeMessage", noticeMessage);
+
+    return {
+      hasNotice: true,
+      noticeMessage
+    };
+  } catch (error) {
+    console.error('Error extracting notice:', error);
+    return {
+      hasNotice: false,
+      noticeMessage: null
+    };
+  }
 }

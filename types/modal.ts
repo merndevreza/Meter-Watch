@@ -14,6 +14,13 @@ export type BalanceUpdaterModalProps = {
     setShowModal: (state: boolean) => void;
     modalType: "recharge" | "balance-use"
 };
+export type ThresholdUpdaterModalProps = {
+    dictionary:Dictionary; 
+    consumerNumber: string;
+    currentThreshold:string;
+    onThresholdUpdate: (consumerNumber: string, newThreshold: number) => void;
+    setShowModal: (state: boolean) => void; 
+};
 
 export type DeleteConfirmationModalProps = {
     title: string;

@@ -1,8 +1,9 @@
+"use server";
 import { auth } from '@/auth';
 import { Customer } from '@/database/models/customer-model';
-import { Meters } from '@/database/models/meter-model';
 import connectMongo from '@/database/services/connectMongo';
-import { replaceMongoIdInArray, replaceMongoIdInObject } from '@/lib/replaceMongoID';
+import { replaceMongoIdInArray } from '@/lib/replaceMongoID';
+import { revalidatePath } from 'next/cache';
 
 // get all meters of Logged in user
 export async function fetchNescoMeters() {
@@ -32,5 +33,14 @@ export async function fetchNescoMeters() {
          error: "Internal Server Error. Please try again later.",
          data: []
       };
+   }
+}
+
+// revalidate the dashboard page for all language variants
+export async function revalidateDashboard(lang?: string) {
+   if (lang) {
+      revalidatePath(`/${lang}`, 'layout');
+   } else {
+      revalidatePath('/', 'layout');
    }
 }

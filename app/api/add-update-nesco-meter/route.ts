@@ -3,7 +3,7 @@ import { load } from 'cheerio';
 import { auth } from '@/auth';
 import { ScrapedData } from '@/types/scrape-type';
 import connectMongo from '@/database/services/connectMongo';
-import { extractCustomerData, extractMonthlyConsumption, extractRechargeHistory } from './utils/scraper.utils';
+import { extractCustomerData, extractMonthlyConsumption, extractNotice, extractRechargeHistory } from './utils/scraper.utils';
 import { saveCustomerData, saveMonthlyConsumption, saveRechargeHistory } from './utils/database.utils';
 import { handleScrapingError } from './utils/error-handler.utils';
 
@@ -89,20 +89,10 @@ export async function POST(request: Request) {
     const rechargeContent = await page.content();
     const $recharge = load(rechargeContent);
 
-    // 8. Additional check for error messages (belt and suspenders approach)
-    const errorMessage = $recharge('div.alert-danger').text().trim();
-    const alertMessage = $recharge('div.alert').text().toLowerCase();
-
-    if (errorMessage || alertMessage.includes('not found')) {
-      return NextResponse.json(
-        { success: false, message: 'Customer number not found.', status: 404 },
-        { status: 404 }
-      );
-    }
-
     // 9. Extract customer data and recharge history
     const customer = extractCustomerData($recharge);
     const rechargeHistory = extractRechargeHistory($recharge);
+    const notice = extractNotice($recharge);
 
     // 10. Click Monthly Consumption button and wait for page reload
     try {
@@ -150,7 +140,8 @@ export async function POST(request: Request) {
     await saveCustomerData(
       customer,
       session.user.id,
-      meterName
+      meterName,
+      notice
     );
 
     // Save recharge history
@@ -172,6 +163,7 @@ export async function POST(request: Request) {
       customer,
       rechargeHistory,
       monthlyConsumption,
+      notice
     };
 
     return NextResponse.json({

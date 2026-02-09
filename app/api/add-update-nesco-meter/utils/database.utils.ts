@@ -1,4 +1,4 @@
-import { CustomerData, RechargeRecord, MonthlyConsumption } from '@/types/scrape-type'; 
+import { CustomerData, RechargeRecord, MonthlyConsumption, ArrearNotice } from '@/types/scrape-type';
 import { RechargeHistory } from '@/database/models/recharge-history-model';
 import { Customer } from '@/database/models/customer-model';
 import { MonthlyConsumptionModel } from '@/database/models/monthly-consumption-model';
@@ -8,25 +8,34 @@ import { MonthlyConsumptionModel } from '@/database/models/monthly-consumption-m
  * Updates existing record or creates new one
  */
 export async function saveCustomerData(
-  customerData: CustomerData, 
+  customerData: CustomerData,
   userId: string,
-  meterName:string
+  meterName: string,
+  notice: ArrearNotice
 ) {
-  const customerRecord = {
-    ...customerData, 
-    userId,
-    meterName,
-    lastScraped: new Date(),
-  };
+  try {
+    const customerRecord = {
+      ...customerData,
+      userId,
+      meterName,
+      hasNotice: notice.hasNotice || false,
+      noticeMessage: notice.noticeMessage || null,
+      noticeLastChecked: new Date(),
+      lastScraped: new Date(),
+    };
 
-  // Update if exists, create if not (upsert)
-  const result = await Customer.findOneAndUpdate(
-    { consumerNumber: customerData.consumerNumber, userId },
-    customerRecord,
-    { upsert: true, new: true, setDefaultsOnInsert: true }
-  );
+    // Update if exists, create if not (upsert)
+    const result = await Customer.findOneAndUpdate(
+      { consumerNumber: customerData.consumerNumber, userId },
+      { $set: customerRecord },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
 
-  return result;
+    return result;
+  } catch (error) {
+    console.error('Error saving customer data:', error);
+    throw error;
+  }
 }
 
 /**

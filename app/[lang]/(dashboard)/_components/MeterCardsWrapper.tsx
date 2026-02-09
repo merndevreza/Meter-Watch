@@ -8,7 +8,15 @@ import {
    CardHeader,
    CardTitle,
 } from "@/components/ui/card"
-import { Zap, Calendar, Activity, Gauge, Grid2x2Check } from "lucide-react";
+import {
+   Popover,
+   PopoverContent,
+   PopoverDescription,
+   PopoverHeader,
+   PopoverTitle,
+   PopoverTrigger,
+} from "@/components/ui/popover"
+import { Zap, Calendar, Activity, Gauge, Grid2x2Check, Bell } from "lucide-react";
 import { Separator } from '@/components/ui/separator';
 import { NescoMeterDataType } from '@/types/meter-type';
 import CardButtons from './CardButtons';
@@ -19,11 +27,11 @@ const MeterCardsWrapper = ({ dictionary, metersData = [] }: { dictionary: Dictio
    const [allMeters, setAllMeters] = useState<NescoMeterDataType[]>(metersData);
 
 
-   const onDeleteMeter = (mongoId: string) => {
-      const updatedMeters = allMeters.filter(meter => meter.id !== mongoId);
+   const onDeleteMeter = (consumerNumber: string) => {
+      const updatedMeters = allMeters.filter(meter => meter.consumerNumber !== consumerNumber);
       setAllMeters(updatedMeters);
    }
-   const onBalanceUpdate = (mongoId: string, newBalance: number) => {
+   const onThresholdUpdate = (mongoId: string, newBalance: number) => {
       const updatedMeters = allMeters.map(meter => {
          if (meter.id === mongoId) {
             return { ...meter, currentBalance: newBalance };
@@ -54,7 +62,7 @@ const MeterCardsWrapper = ({ dictionary, metersData = [] }: { dictionary: Dictio
    //   }
    // }
    // console.log("allMeters",allMeters);
-   
+
    return (
       <div className="grid grid-cols-1 gap-6 px-4 lg:px-6 xl:gap-8 xl:px-8 xl:grid-cols-2 2xl:grid-cols-4">
          {allMeters?.length > 0 ? (
@@ -71,11 +79,35 @@ const MeterCardsWrapper = ({ dictionary, metersData = [] }: { dictionary: Dictio
                               Consumer Name: {meter.customerName}
                            </CardDescription>
                         </div>
-                        <Badge
-                           variant="default"
-                           className={`px-3 py-1 text-sm font-medium flex items-center gap-2 shadow-inner border-secondary bg-primary/30 text-muted-foreground/80`}>
-                           Meter ID: {meter.meterNumber}
-                        </Badge>
+                        <div>
+                           <Badge
+                              variant="default"
+                              className={`px-3 py-1 text-sm font-medium flex items-center gap-2 shadow-inner border-secondary bg-secondary text-foreground`}>
+                              Meter ID: {meter.meterNumber}
+                           </Badge>
+                           <div className="inline-block mt-2 float-right">
+                              <Popover>
+                                 <PopoverTrigger asChild >
+                                    <button className="relative p-0 cursor-pointer">
+                                       <Bell size={22} />
+                                       {meter.hasNotice && (<span className="w-2 h-2 rounded-full bg-red-700 inline-block absolute top-0 right-0"></span>)}
+                                    </button>
+                                 </PopoverTrigger>
+                                 <PopoverContent className="bg-accent" align="end" >
+                                    {meter.hasNotice ? (
+                                       <PopoverHeader>
+                                          <PopoverTitle>Notice</PopoverTitle>
+                                          <PopoverDescription className="text-accent-foreground leading-relaxed">{meter.noticeMessage}</PopoverDescription>
+                                       </PopoverHeader>
+                                    ) : (
+                                       <PopoverHeader>
+                                          <PopoverTitle>No Notice</PopoverTitle>
+                                       </PopoverHeader>
+                                    )}
+                                 </PopoverContent>
+                              </Popover>
+                           </div>
+                        </div>
                      </div>
                   </CardHeader>
 
@@ -83,9 +115,9 @@ const MeterCardsWrapper = ({ dictionary, metersData = [] }: { dictionary: Dictio
                      <div className={`rounded-xl bg-primary/3 py-6 px-4 text-center border shadow-inner ${meter.remainingBalance <= meter.minimumRechargeAmount ? "border-red-500 animate-caret-blink" : "border-primary/10"}`}>
                         <p className="text-sm font-bold text-muted-foreground/70 uppercase tracking-widest mb-1">{dictionary.currentBalance}</p>
                         <div className="text-4xl font-extrabold text-primary tracking-tight">
-                           <span className={`${meter.remainingBalance <= meter.minimumRechargeAmount ? "text-red-500" : "text-white"}`}>{meter.remainingBalance}</span> <span className="text-lg font-bold text-primary/60">{dictionary.tk}</span>
+                           <span className={`${meter.remainingBalance <= meter.minimumRechargeAmount ? "text-red-500" : "text-foreground"}`}>{meter.remainingBalance}</span> <span className="text-lg font-bold text-primary/60">{dictionary.tk}</span>
                         </div>
-                     </div> 
+                     </div>
 
                      <div className="grid grid-cols-2 gap-y-5 gap-x-2">
                         <div className="space-y-1.5">
@@ -120,7 +152,7 @@ const MeterCardsWrapper = ({ dictionary, metersData = [] }: { dictionary: Dictio
 
                      <Separator className="opacity-60" />
 
-                     <CardButtons dictionary={dictionary} meterCurrentBalance={meter.currentBalance} onBalanceUpdate={onBalanceUpdate} mongoId={meter.id} onDeleteMeter={onDeleteMeter} isActive={meter.isActive} />
+                     <CardButtons dictionary={dictionary} consumerNumber={meter.consumerNumber} currentThreshold={meter.minimumRechargeAmount} onThresholdUpdate={onThresholdUpdate} onDeleteMeter={onDeleteMeter} meterName={meter.meterName} />
                   </CardContent>
                   <CardFooter className="bg-muted/40 pb-4 [.border-t]:pt-4 border-t">
                      <div className="flex w-full items-center justify-center gap-2 text-sm text-muted-foreground font-semibold">
