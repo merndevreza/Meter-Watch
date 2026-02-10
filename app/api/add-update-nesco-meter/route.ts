@@ -1,190 +1,187 @@
 import { NextResponse } from 'next/server';
-import { load } from 'cheerio';
-import { auth } from '@/auth';
+import { z } from 'zod';
+import { auth } from '@/auth'; 
+import { logger } from '@/lib/logger';
+import { metrics } from '@/lib/metrics';
+import { rateLimiter } from '@/lib/rate-limiter';
+import { AppError, ErrorCode } from '@/lib/errors';
 import { ScrapedData } from '@/types/scrape-type';
-import connectMongo from '@/database/services/connectMongo';
-import { extractCustomerData, extractMonthlyConsumption, extractNotice, extractRechargeHistory } from './utils/scraper.utils';
-import { saveCustomerData, saveMonthlyConsumption, saveRechargeHistory } from './utils/database.utils';
-import { handleScrapingError } from './utils/error-handler.utils';
+import { ScraperService } from './utils/scraper.service';
+import { CustomerDataService } from './utils/database.utils';
 
 /**
- * This API scrapes customer information, recharge history, and monthly consumption
- * from the NESCO (Northern Electricity Supply Company Limited) prepaid customer portal
- * and stores it in MongoDB.
+ * Request validation schema
  */
+const ScrapeRequestSchema = z.object({
+  consumerNumber: z.string()
+    .min(1, 'Consumer number is required')
+    .max(10, 'Consumer number too long')
+    .regex(/^\d+$/, 'Consumer number must contain only digits'),
+  meterName: z.string()
+    .min(1, 'Meter name is required')
+    .max(20, 'Meter name too long'),
+  existingCustomer: z.boolean().optional().default(false),
+});
 
+/**
+ * NESCO Data Scraper API
+ * 
+ * This endpoint scrapes customer information from the NESCO prepaid portal
+ * and stores it in MongoDB.
+ * 
+ * Rate limited to prevent abuse.
+ */
 export async function POST(request: Request) {
-  let browser;
+  const startTime = Date.now();
+  let scraperService: ScraperService | null = null;
 
   try {
-    // 1. Check authentication
+    // 1. Authenticate user
     const session = await auth();
     if (!session?.user?.emailVerified) {
-      return NextResponse.json(
-        { success: false, message: 'Unauthorized. Please login first.', status: 401 },
-        { status: 401 }
+      throw new AppError(
+        ErrorCode.UNAUTHORIZED,
+        'Please login to continue',
+        401
       );
     }
 
-    // 2. Parse and validate request
+    const userId = session.user.id;
+
+    // 2. Rate limiting
+    const rateLimitResult = await rateLimiter.check(userId, 'scrape');
+    if (!rateLimitResult.success) {
+      throw new AppError(
+        ErrorCode.RATE_LIMIT_EXCEEDED,
+        `Too many requests. Please try again in ${rateLimitResult.resetIn} seconds`,
+        429
+      );
+    }
+
+    // 3. Validate request body
     const body = await request.json();
-    const { consumerNumber, meterName } = body;
+    const validatedData = ScrapeRequestSchema.parse(body);
 
-    if (!consumerNumber || typeof consumerNumber !== 'string') {
-      return NextResponse.json(
-        { success: false, message: 'Missing or invalid customerNumber or meterName.', status: 400 },
-        { status: 400 }
-      );
-    }
-
-    // 3. Launch headless browser for scraping
-    const puppeteer = await import('puppeteer');
-    browser = await puppeteer.launch({
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-      ],
+    logger.info('Scraping started', {
+      userId,
+      consumerNumber: validatedData.consumerNumber,
     });
 
-    const page = await browser.newPage();
-    await page.setUserAgent(
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    // 4. Initialize scraper service
+    scraperService = new ScraperService();
+
+    // 5. Scrape data with timeout
+    const SCRAPING_TIMEOUT = 45000; // 45 seconds
+    const scrapePromise = scraperService.scrapeCustomerData(
+      validatedData.consumerNumber
+    );
+    
+    const timeoutPromise = new Promise<ScrapedData>((_, reject) =>
+      setTimeout(
+        () => reject(new AppError(
+          ErrorCode.TIMEOUT,
+          'Request timeout. Please try again',
+          504
+        )),
+        SCRAPING_TIMEOUT
+      )
     );
 
-    // 4. Navigate to NESCO portal
-    const url = 'https://customer.nesco.gov.bd/pre/panel';
+    const scrapedData = await Promise.race([scrapePromise, timeoutPromise]);
 
-    await page.goto(url, {
-      waitUntil: 'domcontentloaded',
-      timeout: 30000
+    // 6. Save data to database
+    const dataService = new CustomerDataService();
+    const savedData = await dataService.saveScrapedData(
+      scrapedData,
+      userId,
+      validatedData.meterName,
+      validatedData.existingCustomer
+    );
+
+    // 7. Track metrics
+    const duration = Date.now() - startTime;
+    metrics.increment('scraping.success', { userId });
+    metrics.timing('scraping.duration', duration);
+
+    logger.info('Scraping completed', {
+      userId,
+      consumerNumber: validatedData.consumerNumber,
+      duration,
+      saved: savedData.summary,
     });
 
-    // 5. Fill in customer number and submit for RECHARGE HISTORY
-    await page.waitForSelector('#cust_no', { visible: true, timeout: 10000 });
-    await page.type('#cust_no', consumerNumber);
-    await page.click('#recharge_hist_button');
-
-    // Wait a bit for the page to respond
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    // 6. Check if consumer info div exists (indicates valid consumer number)
-    const conInfoExists = await page.$('#con_info_div');
-
-    if (!conInfoExists) {
-      return NextResponse.json(
-        { success: false, message: 'Invalid consumer number or meter not found.', status: 404 },
-        { status: 404 }
-      );
-    }
-
-    // Wait for the table to be visible after validation
-    await page.waitForSelector('.table-responsive', { timeout: 30000 });
-
-    // Small delay to ensure content is fully loaded
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    // 7. Extract recharge history page content
-    const rechargeContent = await page.content();
-    const $recharge = load(rechargeContent);
-
-    // 9. Extract customer data and recharge history
-    const customer = extractCustomerData($recharge);
-    const rechargeHistory = extractRechargeHistory($recharge);
-    const notice = extractNotice($recharge);
-
-    // 10. Click Monthly Consumption button and wait for page reload
-    try {
-      await Promise.all([
-        page.waitForNavigation({
-          waitUntil: 'networkidle2', // Wait until network is idle
-          timeout: 30000
-        }),
-        page.click('#consumption_hist_button')
-      ]); 
-    } catch (error) {
-      console.error('Navigation error:', error);
-      throw new Error('Failed to load monthly consumption page');
-    }
-
-    // 11. Wait for the monthly consumption table to be fully loaded
-    await page.waitForSelector('.table.bfont_post', {
-      visible: true,
-      timeout: 30000
-    });
-
-    // Extra safety: Wait for table to have data
-    await page.waitForFunction(
-      () => {
-        const table = document.querySelector('.table.bfont_post tbody');
-        return table && table.querySelectorAll('tr').length > 0;
-      },
-      { timeout: 10000 }
-    );
-
-    // Small delay to ensure all content is rendered
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    // 12. Extract monthly consumption page content
-    const consumptionContent = await page.content();
-    const $consumption = load(consumptionContent);
-
-    // 13. Extract monthly consumption data
-    const monthlyConsumption = extractMonthlyConsumption($consumption);
-
-    // 14. Connect to MongoDB and save all data
-    await connectMongo();
-
-    // Save customer data
-    await saveCustomerData(
-      customer,
-      session.user.id,
-      meterName,
-      notice
-    );
-
-    // Save recharge history
-    const historyResult = await saveRechargeHistory(
-      rechargeHistory,
-      customer.consumerNumber,
-      session.user.id
-    );
-
-    // Save monthly consumption
-    const consumptionResult = await saveMonthlyConsumption(
-      monthlyConsumption,
-      customer.consumerNumber,
-      session.user.id
-    );
-
-    // 14. Prepare response
-    const result: ScrapedData = {
-      customer,
-      rechargeHistory,
-      monthlyConsumption,
-      notice
-    };
-
+    // 8. Return success response
     return NextResponse.json({
       success: true,
-      message: 'Customer data scraped and saved successfully',
-      status: 200,
-      data: result,
-      saved: {
-        customer: true,
-        newRecharges: historyResult.saved,
-        duplicateRecharges: historyResult.skipped,
-        newConsumption: consumptionResult.saved,
-        updatedConsumption: consumptionResult.skipped,
+      message: 'Data scraped and saved successfully',
+      data: {
+        customer: scrapedData.customer,
+        rechargeHistory: scrapedData.rechargeHistory,
+        monthlyConsumption: scrapedData.monthlyConsumption,
+        notice: scrapedData.notice,
       },
+      saved: savedData.summary,
     }, { status: 200 });
 
   } catch (error) {
-    return handleScrapingError(error);
+    // Track failure metrics
+    const duration = Date.now() - startTime;
+    metrics.increment('scraping.failure', {
+      reason: error instanceof Error ? error.message : 'unknown',
+    });
+    metrics.timing('scraping.duration', duration);
+
+    // Log error with context
+    logger.error('Scraping failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      duration,
+    });
+
+    // Handle different error types
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({
+        success: false,
+        error: {
+          code: ErrorCode.VALIDATION_ERROR,
+          message: 'Invalid request data',
+          details: error.issues.map(e => ({
+            field: e.path.join('.'),
+            message: e.message,
+          })),
+        },
+      }, { status: 400 });
+    }
+
+    if (error instanceof AppError) {
+      return NextResponse.json({
+        success: false,
+        error: {
+          code: error.code,
+          message: error.message,
+        },
+      }, { status: error.statusCode });
+    }
+
+    // Generic error
+    return NextResponse.json({
+      success: false,
+      error: {
+        code: ErrorCode.INTERNAL_ERROR,
+        message: 'An unexpected error occurred. Please try again',
+      },
+    }, { status: 500 });
+
   } finally {
-    if (browser) {
-      await browser.close(); 
+    // Cleanup scraper resources
+    if (scraperService) {
+      try {
+        await scraperService.cleanup();
+      } catch (cleanupError) {
+        logger.error('Error during scraper cleanup', {
+          error: cleanupError instanceof Error ? cleanupError.message : 'Unknown',
+        });
+      }
     }
   }
 }

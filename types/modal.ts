@@ -10,7 +10,7 @@ export type BalanceUpdaterModalProps = {
     dictionary:Dictionary;
     currentBalance: number;
     mongoId: string;
-    onBalanceUpdate: (mongoId: string, newBalance: number) => void;
+    onBalanceUpdate: (consumerNumber: string, newBalance: number) => void;
     setShowModal: (state: boolean) => void;
     modalType: "recharge" | "balance-use"
 };

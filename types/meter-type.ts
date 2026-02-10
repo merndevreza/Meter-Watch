@@ -37,8 +37,8 @@ export type NescoMeterDataType = {
 }
 export type MeterCardButtonsProps = {
    dictionary: Dictionary;
-   onDeleteMeter: (mongoId: string) => void;
-   onThresholdUpdate: (mongoId: string, newBalance: number) => void; 
+   onDeleteMeter: (consumerNumber: string) => void;
+   onThresholdUpdate: (consumerNumber: string, newThreshold: number) => void; 
    consumerNumber: string; 
    currentThreshold:string;
    meterName: string;

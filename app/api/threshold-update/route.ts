@@ -3,8 +3,6 @@ import { z } from 'zod';
 import { auth } from '@/auth';
 import connectMongo from '@/database/services/connectMongo';
 import { Customer } from '@/database/models/customer-model';
-import { RechargeHistory } from '@/database/models/recharge-history-model';
-import { MonthlyConsumptionModel } from '@/database/models/monthly-consumption-model';
 import { logger } from '@/lib/logger';
 import { metrics } from '@/lib/metrics';
 import { AppError, ErrorCode } from '@/lib/errors';
@@ -12,24 +10,22 @@ import { AppError, ErrorCode } from '@/lib/errors';
 /**
  * Request validation schema
  */
-const DeleteMeterSchema = z.object({
+const UpdateThresholdSchema = z.object({
   consumerNumber: z.string()
     .min(1, 'Consumer number is required')
     .regex(/^\d{6,15}$/, 'Invalid consumer number format'),
+  newThreshold: z.number()
+    .min(0, 'Threshold must be a positive number')
+    .max(100000, 'Threshold amount is too high'),
 });
 
 /**
- * Delete Customer Meter API
+ * Update Customer Minimum Recharge Threshold API
  * 
- * This endpoint deletes a customer meter and all associated data:
- * - Customer record
- * - All recharge history
- * - All monthly consumption records
- * 
- * Only the authenticated user who owns the meter can delete it.
- * This is a destructive operation and cannot be undone.
+ * This endpoint updates the minimum recharge amount threshold for a customer's meter.
+ * Only the authenticated user who owns the meter can update it.
  */
-export async function DELETE(request: Request) {
+export async function PUT(request: Request) {
   const startTime = Date.now();
 
   try {
@@ -47,86 +43,71 @@ export async function DELETE(request: Request) {
 
     // 2. Validate request body
     const body = await request.json();
-    const validatedData = DeleteMeterSchema.parse(body);
+    const validatedData = UpdateThresholdSchema.parse(body);
 
-    logger.info('Deleting meter', {
+    logger.info('Updating threshold', {
       userId,
       consumerNumber: validatedData.consumerNumber,
+      newThreshold: validatedData.newThreshold,
     });
 
     // 3. Connect to MongoDB
     await connectMongo();
 
-    // 4. Check if customer exists before deletion
-    const customerExists = await Customer.findOne({
-      consumerNumber: validatedData.consumerNumber,
-      userId,
-    });
+    // 4. Update customer threshold
+    const result = await Customer.updateOne(
+      {
+        consumerNumber: validatedData.consumerNumber,
+        userId,
+      },
+      {
+        $set: {
+          minimumRechargeAmount: validatedData.newThreshold,
+        },
+      }
+    );
 
-    if (!customerExists) {
+    // 5. Check if customer exists and was updated
+    if (result.matchedCount === 0) {
       throw new AppError(
         ErrorCode.CONSUMER_NOT_FOUND,
-        'Meter not found or you do not have permission to delete it',
+        'Meter not found or you do not have permission to update it',
         404
       );
     }
 
-    // 5. Delete all related data in parallel for better performance
-    const [customerResult, rechargeResult, consumptionResult] = await Promise.all([
-      Customer.deleteOne({
-        consumerNumber: validatedData.consumerNumber,
-        userId,
-      }),
-      RechargeHistory.deleteMany({
-        consumerNumber: validatedData.consumerNumber,
-        userId,
-      }),
-      MonthlyConsumptionModel.deleteMany({
-        consumerNumber: validatedData.consumerNumber,
-        userId,
-      }),
-    ]);
-
     // 6. Track metrics
     const duration = Date.now() - startTime;
-    metrics.increment('meter.delete.success', { userId });
-    metrics.timing('meter.delete.duration', duration);
+    metrics.increment('threshold.update.success', { userId });
+    metrics.timing('threshold.update.duration', duration);
 
-    logger.info('Meter deleted successfully', {
+    logger.info('Threshold updated successfully', {
       userId,
       consumerNumber: validatedData.consumerNumber,
-      deletedRecords: {
-        customer: customerResult.deletedCount,
-        rechargeHistory: rechargeResult.deletedCount,
-        monthlyConsumption: consumptionResult.deletedCount,
-      },
       duration,
     });
 
-    // 7. Return success response with deletion details
+    // 7. Return success response
     return NextResponse.json({
       success: true,
-      message: 'Meter deleted successfully',
+      message: 'Threshold updated successfully',
       data: {
         consumerNumber: validatedData.consumerNumber,
-        deletedRecords: {
-          customer: customerResult.deletedCount,
-          rechargeHistory: rechargeResult.deletedCount,
-          monthlyConsumption: consumptionResult.deletedCount,
-        },
+        newThreshold: validatedData.newThreshold,
+        updated: result.modifiedCount > 0,
       },
     }, { status: 200 });
 
   } catch (error) {
     // Track failure metrics
     const duration = Date.now() - startTime;
-    metrics.increment('meter.delete.failure', {
+    metrics.increment('threshold.update.failure', {
       reason: error instanceof Error ? error.message : 'unknown',
     });
-    metrics.timing('meter.delete.duration', duration);
+    metrics.timing('threshold.update.duration', duration);
 
     // Log error
-    logger.error('Meter deletion failed', {
+    logger.error('Threshold update failed', {
       error: error instanceof Error ? error.message : 'Unknown error',
       stack: error instanceof Error ? error.stack : undefined,
       duration,
@@ -162,7 +143,7 @@ export async function DELETE(request: Request) {
       success: false,
       error: {
         code: ErrorCode.INTERNAL_ERROR,
-        message: 'Failed to delete meter',
+        message: 'Failed to update threshold',
       },
     }, { status: 500 });
   }

@@ -17,7 +17,30 @@ const ThresholdUpdaterModal = ({ dictionary, currentThreshold, consumerNumber, o
       e.preventDefault();
       const formData = new FormData(e.currentTarget);
       const amount = formData.get("amount");
+      try {
+         const response = await fetch('/api/threshold-update', {
+            method: 'PUT',
+            headers: {
+               'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+               consumerNumber,
+               newThreshold: Number(amount),
+            }),
+         });
 
+         const data = await response.json();
+         if (data.success) {
+            toast.success(data.message);
+            onThresholdUpdate(consumerNumber, Number(amount));
+            setShowModal(false);
+            setThreshold(Number(amount));
+         } else {
+            toast.error(data.message);
+         }
+      } catch (error) {
+         console.log('Error updating threshold:', error);
+      }
    };
    return (
       <div className='w-full'>

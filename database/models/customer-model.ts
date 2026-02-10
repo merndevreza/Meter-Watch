@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
 /**
- * Customer Interface - matches the scraped data structure
+ * Customer Interface
  */
 export interface ICustomer extends Document {
   // Basic Information
@@ -16,6 +16,7 @@ export interface ICustomer extends Document {
   consumerNumber: string;
 
   // Meter Information
+  meterName: string;
   meterNumber: string;
   sanctionedLoadKw: string;
   tariff: string;
@@ -27,8 +28,13 @@ export interface ICustomer extends Document {
   minimumRechargeAmount: number;
   remainingBalance: number;
 
+  // Notice Information
+  hasNotice: boolean;
+  noticeMessage: string | null;
+  noticeLastChecked: Date;
+
   // User Association
-  userId: string; // The user who added this customer
+  userId: string;
 
   // Timestamps
   lastScraped: Date;
@@ -37,106 +43,155 @@ export interface ICustomer extends Document {
 }
 
 /**
- * Customer Schema
+ * Customer Schema with validation
  */
 const CustomerSchema: Schema = new Schema(
   {
-    // Basic Information
     customerName: {
       type: String,
-      required: true,
+      required: [true, 'Customer name is required'],
+      trim: true,
+      maxlength: [200, 'Customer name too long'],
     },
     fatherHusbandName: {
       type: String,
-      required: true,
+      required: [true, 'Father/Husband name is required'],
+      trim: true,
+      maxlength: [200, 'Father/Husband name too long'],
     },
     address: {
       type: String,
-      required: true,
+      required: [true, 'Address is required'],
+      trim: true,
+      maxlength: [500, 'Address too long'],
     },
     mobile: {
       type: String,
-      required: true,
+      required: [true, 'Mobile number is required'],
+      trim: true,
+      validate: {
+        validator: function(v: string) {
+          // Validate Bangladeshi mobile number format
+          return /^(\+?880|0)?1[3-9]\d{8}$/.test(v.replace(/\s/g, ''));
+        },
+        message: 'Invalid mobile number format',
+      },
     },
-
-    // Electricity Office Details
     electricityOffice: {
       type: String,
-      required: true,
+      required: [true, 'Electricity office is required'],
+      trim: true,
     },
     feederName: {
       type: String,
-      required: true,
+      required: [true, 'Feeder name is required'],
+      trim: true,
     },
     consumerNumber: {
       type: String,
-      required: true,
-      unique: true, // Consumer number should be unique
+      required: [true, 'Consumer number is required'],
+      unique: true,
+      trim: true,
       index: true,
+      validate: {
+        validator: function(v: string) {
+          // Validate consumer number format (adjust regex as needed)
+          return /^\d{6,15}$/.test(v);
+        },
+        message: 'Invalid consumer number format',
+      },
     },
-    hasNotice: { type: Boolean, default: false },
-    noticeMessage: { type: String, default: null },
-    noticeLastChecked: { type: Date },
-    // Meter Information
     meterName: {
       type: String,
-      required: true,
+      required: [true, 'Meter name is required'],
+      trim: true,
+      maxlength: [100, 'Meter name too long'],
     },
     meterNumber: {
       type: String,
-      required: true,
+      required: [true, 'Meter number is required'],
+      trim: true,
       index: true,
     },
     sanctionedLoadKw: {
       type: String,
-      required: true,
+      required: [true, 'Sanctioned load is required'],
+      trim: true,
     },
     tariff: {
       type: String,
-      required: true,
+      required: [true, 'Tariff is required'],
+      trim: true,
     },
     meterType: {
       type: String,
       default: '',
+      trim: true,
     },
     meterStatus: {
       type: String,
       default: '',
+      trim: true,
     },
     meterInstallationDate: {
       type: String,
       default: '',
+      trim: true,
     },
-
-    // Balance Information
     minimumRechargeAmount: {
       type: Number,
       default: 0,
+      min: [0, 'Minimum recharge amount cannot be negative'],
     },
     remainingBalance: {
       type: Number,
       default: 0,
     },
-    // User Association
-    userId: {
-      type: String,
-      required: true,
+    hasNotice: {
+      type: Boolean,
+      default: false,
       index: true,
     },
-
-    // Timestamps
-    lastScraped: {
+    noticeMessage: {
+      type: String,
+      default: null,
+    },
+    noticeLastChecked: {
       type: Date,
       default: Date.now,
     },
+    userId: {
+      type: String,
+      required: [true, 'User ID is required'],
+      index: true,
+    },
+    lastScraped: {
+      type: Date,
+      default: Date.now,
+      index: true,
+    },
   },
   {
-    timestamps: true, // Automatically adds createdAt and updatedAt
+    timestamps: true,
+    // Add virtual fields if needed
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   }
 );
 
-// Create compound index for user-specific queries
+// Compound indexes for efficient queries
 CustomerSchema.index({ userId: 1, consumerNumber: 1 });
+CustomerSchema.index({ userId: 1, lastScraped: -1 });
+CustomerSchema.index({ userId: 1, hasNotice: 1 });
+
+// Virtual for days since last scrape
+CustomerSchema.virtual('daysSinceLastScrape').get(function(this: ICustomer) {
+  const now = new Date();
+  const diff = now.getTime() - this.lastScraped.getTime();
+  return Math.floor(diff / (1000 * 60 * 60 * 24));
+});
+
+ 
 
 /**
  * Customer Model

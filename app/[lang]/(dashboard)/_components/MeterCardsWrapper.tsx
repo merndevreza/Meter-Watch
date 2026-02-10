@@ -31,37 +31,15 @@ const MeterCardsWrapper = ({ dictionary, metersData = [] }: { dictionary: Dictio
       const updatedMeters = allMeters.filter(meter => meter.consumerNumber !== consumerNumber);
       setAllMeters(updatedMeters);
    }
-   const onThresholdUpdate = (mongoId: string, newBalance: number) => {
+   const onThresholdUpdate = (consumerNumber: string, newThreshold: number) => {
       const updatedMeters = allMeters.map(meter => {
-         if (meter.id === mongoId) {
-            return { ...meter, currentBalance: newBalance };
+         if (meter.consumerNumber === consumerNumber) {
+            return { ...meter, minimumRechargeAmount: String(newThreshold) };
          }
          return meter;
       });
       setAllMeters(updatedMeters);
    }
-   // {
-   //   "_id": {
-   //     "$oid": "69802dddb31e74e9a91c32d2"
-   //   }, 
-   //   "userId": "697a3ab0b04417522bb95192",
-   //   "__v": 0,
-   //   "address": "PADMA R/A ,RAJSHAHI",
-   //   "createdAt": {
-   //     "$date": "2026-02-02T04:53:49.398Z"
-   //   },
-   //   "customerName": "MD MOINUL HAQUE",
-   //   "mobile": "+880 155*****72",   
-   //   "electricityOffice": "Rajshahi S&D3",
-   //   "fatherHusbandName": "",
-   //   "feederName": "Padma", 
-   //   "meterInstallationDate": "27/08/2025 13:34:55", 
-   //   "meterStatus": "Install With Active",  
-   //   "updatedAt": {
-   //     "$date": "2026-02-02T04:53:49.398Z"
-   //   }
-   // }
-   // console.log("allMeters",allMeters);
 
    return (
       <div className="grid grid-cols-1 gap-6 px-4 lg:px-6 xl:gap-8 xl:px-8 xl:grid-cols-2 2xl:grid-cols-4">

@@ -35,7 +35,7 @@ const AddNescoMeterForm = ({ dictionary, lang }: { dictionary: Dictionary; lang:
             const response = await fetch('/api/add-update-nesco-meter', {
                method: 'POST',
                headers: { 'Content-Type': 'application/json' },
-               body: JSON.stringify({ consumerNumber, meterName }),
+               body: JSON.stringify({ consumerNumber, meterName, existingCustomer: false }),
             });
             const result = await response.json();
             if (result.success) {

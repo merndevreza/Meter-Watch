@@ -17,6 +17,7 @@ const CardButtons = ({ dictionary, consumerNumber, onDeleteMeter, onThresholdUpd
    const [isPending, startTransition] = useTransition();
    const params = useParams();
    const lang = params.lang as string;
+   
    const handleDeleteMeter = async () => {
       try {
          const response = await fetch('/api/delete-nesco-meter', {
@@ -43,12 +44,13 @@ const CardButtons = ({ dictionary, consumerNumber, onDeleteMeter, onThresholdUpd
             const response = await fetch('/api/add-update-nesco-meter', {
                method: 'POST',
                headers: { 'Content-Type': 'application/json' },
-               body: JSON.stringify({ consumerNumber, meterName }),
+               body: JSON.stringify({ consumerNumber, meterName, existingCustomer: true }),
             });
             const result = await response.json();
+            console.log("Refresh result:", result);
+            
             if (result.success) {
                toast.success("Meter Updated successfully", { position: "top-right" })
-               await revalidateDashboard(lang);
             } else {
                toast.error(result.message || "Failed to update meter", { position: "top-right" })
             }
