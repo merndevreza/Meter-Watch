@@ -6,8 +6,8 @@ import { metrics } from '@/lib/metrics';
 import { rateLimiter } from '@/lib/rate-limiter';
 import { AppError, ErrorCode } from '@/lib/errors';
 import { ScrapedData } from '@/types/scrape-type';
-import { ScraperService } from './utils/scraper.service';
-import { CustomerDataService } from './utils/database.utils';
+import { createScraperService } from './utils/scraper.service';
+import { saveScrapedData } from './utils/database.utils';
 
 /**
  * Request validation schema
@@ -33,7 +33,7 @@ const ScrapeRequestSchema = z.object({
  */
 export async function POST(request: Request) {
   const startTime = Date.now();
-  let scraperService: ScraperService | null = null;
+  let scraperService: Awaited<ReturnType<typeof createScraperService>> | null = null;
 
   try {
     // 1. Authenticate user
@@ -68,10 +68,10 @@ export async function POST(request: Request) {
     });
 
     // 4. Initialize scraper service
-    scraperService = new ScraperService();
+    scraperService = await createScraperService();
 
     // 5. Scrape data with timeout
-    const SCRAPING_TIMEOUT = 45000; // 45 seconds
+    const SCRAPING_TIMEOUT = 90000; // 90 seconds
     const scrapePromise = scraperService.scrapeCustomerData(
       validatedData.consumerNumber
     );
@@ -90,8 +90,7 @@ export async function POST(request: Request) {
     const scrapedData = await Promise.race([scrapePromise, timeoutPromise]);
 
     // 6. Save data to database
-    const dataService = new CustomerDataService();
-    const savedData = await dataService.saveScrapedData(
+    const savedDataResult = await saveScrapedData(
       scrapedData,
       userId,
       validatedData.meterName,
@@ -107,7 +106,7 @@ export async function POST(request: Request) {
       userId,
       consumerNumber: validatedData.consumerNumber,
       duration,
-      saved: savedData.summary,
+      saved: savedDataResult.summary,
     });
 
     // 8. Return success response
@@ -120,7 +119,7 @@ export async function POST(request: Request) {
         monthlyConsumption: scrapedData.monthlyConsumption,
         notice: scrapedData.notice,
       },
-      saved: savedData.summary,
+      saved: savedDataResult.summary,
     }, { status: 200 });
 
   } catch (error) {
