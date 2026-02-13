@@ -10,9 +10,16 @@ export type BalanceUpdaterModalProps = {
     dictionary:Dictionary;
     currentBalance: number;
     mongoId: string;
-    onBalanceUpdate: (mongoId: string, newBalance: number) => void;
+    onBalanceUpdate: (consumerNumber: string, newBalance: number) => void;
     setShowModal: (state: boolean) => void;
     modalType: "recharge" | "balance-use"
+};
+export type ThresholdUpdaterModalProps = {
+    dictionary:Dictionary; 
+    consumerNumber: string;
+    currentThreshold:string;
+    onThresholdUpdate: (consumerNumber: string, newThreshold: number) => void;
+    setShowModal: (state: boolean) => void; 
 };
 
 export type DeleteConfirmationModalProps = {
