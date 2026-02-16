@@ -27,7 +27,7 @@ export function AppSidebar({ lang, user }: { lang: "en" | "bn"; user: User }) {
       icon: CirclePlus,
     }, 
     {
-      title: "Add Nesco Meter",
+      title: "Add NESCO Meter",
       url: `/${lang}/add-nesco-meter`,
       icon: CirclePlus,
     },
