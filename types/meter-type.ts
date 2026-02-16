@@ -34,6 +34,8 @@ export type NescoMeterDataType = {
    hasNotice: boolean;
    noticeMessage: string | null;
    noticeLastChecked?: Date;
+   feederName: string;
+   electricityOffice: string;
 }
 export type MeterCardButtonsProps = {
    dictionary: Dictionary;

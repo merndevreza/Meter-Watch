@@ -2,8 +2,7 @@
 import { auth } from '@/auth';
 import { Customer } from '@/database/models/customer-model';
 import connectMongo from '@/database/services/connectMongo';
-import { replaceMongoIdInArray } from '@/lib/replaceMongoID';
-import { revalidatePath } from 'next/cache';
+import { replaceMongoIdInArray } from '@/lib/replaceMongoID'; 
 
 // get all meters of Logged in user
 export async function fetchNescoMeters() {
@@ -33,14 +32,5 @@ export async function fetchNescoMeters() {
          error: "Internal Server Error. Please try again later.",
          data: []
       };
-   }
-}
-
-// revalidate the dashboard page for all language variants
-export async function revalidateDashboard(lang?: string) {
-   if (lang) {
-      revalidatePath(`/${lang}`, 'layout');
-   } else {
-      revalidatePath('/', 'layout');
    }
 }

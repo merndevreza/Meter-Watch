@@ -45,7 +45,7 @@ export default async function DashboardLayout({
          <AppSidebar lang={lang} user={session?.user as User} />
          <SidebarInset>
             <SiteHeader lang={lang} user={session?.user as User} />
-            <main className='py-4 md:py-6'>
+            <main className='bg-muted/20 p-6 md:p-10 '>
                {children}
             </main>
          </SidebarInset>

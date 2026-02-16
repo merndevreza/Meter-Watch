@@ -42,7 +42,7 @@ const MeterCardsWrapper = ({ dictionary, metersData = [] }: { dictionary: Dictio
    }
 
    return (
-      <div className="grid grid-cols-1 gap-6 px-4 lg:px-6 xl:gap-8 xl:px-8 xl:grid-cols-2 2xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-6 xl:gap-8 xl:grid-cols-2 2xl:grid-cols-4">
          {allMeters?.length > 0 ? (
             allMeters.map((meter: NescoMeterDataType) => (
                <Card key={meter.id} className="overflow-hidden transition-all pb-0 hover:shadow-lg border-muted-foreground/20">

@@ -8,8 +8,7 @@ import { useState, useTransition } from 'react';
 import DeleteConfirmationModal from '@/components/modals/DeleteConfirmationModal';
 import ThresholdUpdaterModal from './ThresholdUpdaterModal';
 import { toast } from "sonner";
-import { useParams } from 'next/navigation';
-import { revalidateDashboard } from '@/app/actions/getNescoMeters';
+import { useParams } from 'next/navigation'; 
 
 const CardButtons = ({ dictionary, consumerNumber, onDeleteMeter, onThresholdUpdate, currentThreshold, meterName }: MeterCardButtonsProps) => {
    const [showThresholdModal, setShowThresholdModal] = useState(false);
@@ -63,7 +62,7 @@ const CardButtons = ({ dictionary, consumerNumber, onDeleteMeter, onThresholdUpd
 
    return (
       <div className="flex flex-wrap gap-3 pt-1">
-         <Link className='flex-1' href={`/meter-details`}>
+         <Link className='flex-1' href={`${lang}/meter-details/${consumerNumber}`}>
             <Button className={`w-full h-11 gap-2 text-sm font-bold shadow-md active:scale-95 transition-transform`}>
                Details
             </Button>
