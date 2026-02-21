@@ -115,8 +115,6 @@ export async function POST(request: Request) {
       message: 'Data scraped and saved successfully',
       data: {
         customer: scrapedData.customer,
-        rechargeHistory: scrapedData.rechargeHistory,
-        monthlyConsumption: scrapedData.monthlyConsumption,
         notice: scrapedData.notice,
       },
       saved: savedDataResult.summary,

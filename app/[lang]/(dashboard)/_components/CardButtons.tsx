@@ -1,7 +1,7 @@
 "use client";
 import ModalPortal from '@/components/modals/ModalPortal';
 import { Button } from '@/components/ui/button';
-import { MeterCardButtonsProps } from '@/types/meter-type';
+import { MeterCardButtonsProps, NescoMeterDataType } from '@/types/meter-type';
 import { RefreshCcw, Trash } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useTransition } from 'react';
@@ -10,7 +10,7 @@ import ThresholdUpdaterModal from './ThresholdUpdaterModal';
 import { toast } from "sonner";
 import { useParams } from 'next/navigation'; 
 
-const CardButtons = ({ dictionary, consumerNumber, onDeleteMeter, onThresholdUpdate, currentThreshold, meterName }: MeterCardButtonsProps) => {
+const CardButtons = ({ dictionary, consumerNumber, onDeleteMeter, onThresholdUpdate, onRefreshMeter, currentThreshold, meterName }: MeterCardButtonsProps) => {
    const [showThresholdModal, setShowThresholdModal] = useState(false);
    const [showConfirmationModal, setShowConfirmationModal] = useState(false);
    const [isPending, startTransition] = useTransition();
@@ -48,7 +48,29 @@ const CardButtons = ({ dictionary, consumerNumber, onDeleteMeter, onThresholdUpd
             const result = await response.json();
             console.log("Refresh result:", result);
             
-            if (result.success) {
+            if (result.success && result.data?.customer) {
+               const updatedCustomer = result.data.customer;
+               const updatedMeter = {
+                  consumerNumber: updatedCustomer.consumerNumber,
+                  customerName: updatedCustomer.customerName,
+                  meterName: meterName,
+                  mobile: updatedCustomer.mobile,
+                  meterNumber: updatedCustomer.meterNumber,
+                  meterStatus: updatedCustomer.meterStatus,
+                  meterType: updatedCustomer.meterType,
+                  sanctionedLoadKw: updatedCustomer.sanctionedLoadKw,
+                  tariff: updatedCustomer.tariff,
+                  meterInstallationDate: updatedCustomer.meterInstallationDate,
+                  minimumRechargeAmount: String(updatedCustomer.minimumRechargeAmount),
+                  remainingBalance: String(updatedCustomer.remainingBalance),
+                  updatedAt: new Date().toISOString(),
+                  hasNotice: result.data.notice.hasNotice,
+                  noticeMessage: result.data.notice.noticeMessage,
+                  feederName: updatedCustomer.feederName,
+                  electricityOffice: updatedCustomer.electricityOffice,
+                  id: '', // Keep existing id from state
+               } as NescoMeterDataType;
+               onRefreshMeter(updatedMeter);
                toast.success("Meter Updated successfully", { position: "top-right" })
             } else {
                toast.error(result.message || "Failed to update meter", { position: "top-right" })
