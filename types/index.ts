@@ -3,6 +3,8 @@
  * Single source of truth for all types in the application
  */
 
+import { Dictionary } from "./dictionary";
+
 // ============================================================================
 // BASE TYPES - Reusable type compositions
 // ============================================================================
@@ -252,13 +254,14 @@ export type NescoMeterDataType = {
  * Meter card buttons component props
  */
 export type MeterCardButtonsProps = {
-  dictionary: any;
+  dictionary: Dictionary;
   onDeleteMeter: (consumerNumber: string) => void;
   onThresholdUpdate: (consumerNumber: string, newThreshold: number) => void;
-  onRefreshMeter: (meter: NescoMeterDataType) => void;
+  onRefreshUpdateMeters: (meter: NescoMeterDataType) => void;
   consumerNumber: string;
   currentThreshold: string;
   meterName: string;
+  meterId: string;
 };
 
 /**
@@ -296,7 +299,7 @@ export interface DeleteConfirmationModalProps {
  * Threshold updater modal props
  */
 export interface ThresholdUpdaterModalProps {
-  dictionary: any;
+  dictionary: Dictionary;
   currentThreshold: number | string;
   consumerNumber: string;
   onThresholdUpdate: (consumerNumber: string, newThreshold: number) => void;

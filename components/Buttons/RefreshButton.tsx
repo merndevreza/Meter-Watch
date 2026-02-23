@@ -15,8 +15,7 @@ const RefreshButton = ({ consumerNumber, meterName, onRefreshMeter, isShowLabel 
                headers: { 'Content-Type': 'application/json' },
                body: JSON.stringify({ consumerNumber, meterName, existingCustomer: true }),
             });
-            const result = await response.json();
-            console.log("Refresh result:", result);
+            const result = await response.json(); 
 
             if (result.success && result.data) { 
                try {

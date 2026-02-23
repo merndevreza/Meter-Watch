@@ -40,7 +40,7 @@ const MeterCardsWrapper = ({ dictionary, metersData = [] }: { dictionary: Dictio
       });
       setAllMeters(updatedMeters);
    }
-   const onRefreshMeter = (updatedMeter: NescoMeterDataType) => {
+   const onRefreshUpdateMeters = (updatedMeter: NescoMeterDataType) => {
       const updatedMeters = allMeters.map(meter => {
          if (meter.consumerNumber === updatedMeter.consumerNumber) {
             return { ...meter, ...updatedMeter, id: meter.id };
@@ -139,7 +139,7 @@ const MeterCardsWrapper = ({ dictionary, metersData = [] }: { dictionary: Dictio
 
                      <Separator className="opacity-60" />
 
-                     <CardButtons dictionary={dictionary} consumerNumber={meter.consumerNumber} currentThreshold={meter.minimumRechargeAmount} onThresholdUpdate={onThresholdUpdate} onDeleteMeter={onDeleteMeter} onRefreshMeter={onRefreshMeter} meterName={meter.meterName} />
+                     <CardButtons dictionary={dictionary} consumerNumber={meter.consumerNumber} currentThreshold={meter.minimumRechargeAmount} onThresholdUpdate={onThresholdUpdate} onDeleteMeter={onDeleteMeter} meterId={meter.id} onRefreshUpdateMeters={onRefreshUpdateMeters} meterName={meter.meterName} />
                   </CardContent>
                   <CardFooter className="bg-muted/40 pb-4 [.border-t]:pt-4 border-t">
                      <div className="flex w-full items-center justify-center gap-2 text-sm text-muted-foreground font-semibold">

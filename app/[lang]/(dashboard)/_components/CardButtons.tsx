@@ -1,7 +1,7 @@
 "use client";
 import ModalPortal from '@/components/modals/ModalPortal';
 import { Button } from '@/components/ui/button';
-import { MeterCardButtonsProps } from '@/types';
+import { MeterCardButtonsProps, NescoMeterDataType, ScrapedData } from '@/types';
 import { Trash } from 'lucide-react';
 import Link from 'next/link';
 import { useState} from 'react';
@@ -10,7 +10,7 @@ import ThresholdUpdaterModal from './ThresholdUpdaterModal';
 import { useParams } from 'next/navigation'; 
 import RefreshButton from '@/components/Buttons/RefreshButton';
 
-const CardButtons = ({ dictionary, consumerNumber, onDeleteMeter, onThresholdUpdate, onRefreshMeter, currentThreshold, meterName }: MeterCardButtonsProps) => {
+const CardButtons = ({ dictionary, consumerNumber, onDeleteMeter, onThresholdUpdate,  currentThreshold, meterName, meterId, onRefreshUpdateMeters }: MeterCardButtonsProps) => {
    const [showThresholdModal, setShowThresholdModal] = useState(false);
    const [showConfirmationModal, setShowConfirmationModal] = useState(false);
    const params = useParams();
@@ -36,6 +36,42 @@ const CardButtons = ({ dictionary, consumerNumber, onDeleteMeter, onThresholdUpd
       }
    }
 
+   const onRefreshMeter = (responseData: ScrapedData) => {
+      try {
+         const { customer: updatedCustomer, notice } = responseData;
+
+         // Validate required data
+         if (!updatedCustomer) {
+            throw new Error('Customer data is missing from response');
+         }
+
+         // Update customer data with type safety, preserving meterName from existing data
+         const updatedCustomerState: NescoMeterDataType = {
+            id: meterId,
+            consumerNumber: updatedCustomer.consumerNumber,
+            customerName: updatedCustomer.customerName,
+            meterName: meterName,  
+            mobile: updatedCustomer.mobile,
+            meterNumber: updatedCustomer.meterNumber,
+            meterStatus: updatedCustomer.meterStatus,
+            meterType: updatedCustomer.meterType,
+            sanctionedLoadKw: updatedCustomer.sanctionedLoadKw,
+            tariff: updatedCustomer.tariff,
+            meterInstallationDate: updatedCustomer.meterInstallationDate,
+            minimumRechargeAmount: currentThreshold,
+            remainingBalance: String(updatedCustomer.remainingBalance),
+            updatedAt: new Date().toISOString(),
+            hasNotice: notice.hasNotice,
+            noticeMessage: notice.noticeMessage ?? null,
+            feederName: updatedCustomer.feederName,
+            electricityOffice: updatedCustomer.electricityOffice,
+         };  
+         onRefreshUpdateMeters(updatedCustomerState);
+      } catch (error) {
+         console.error('Error updating meter data:', error);
+         throw error;
+      }
+   }
    return (
       <div className="flex flex-wrap gap-3 pt-1">
          <Link className='flex-1' href={`${lang}/meter-details/${consumerNumber}`}>

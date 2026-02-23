@@ -6,7 +6,7 @@ export default async function Page({ params }: {
 }) {
    const { lang, consumerId } = await params;
    const nescoMeterResponse = await getNescoMeterByID(consumerId);
-   if (!nescoMeterResponse.success) {
+   if (!nescoMeterResponse.success || !nescoMeterResponse.data) {
       return (
          <div className='flex items-center justify-center h-[60vh]'>
             <p className='text-red-500 text-lg'>{nescoMeterResponse.error || "Failed to fetch meter data"}</p>
@@ -14,6 +14,6 @@ export default async function Page({ params }: {
       );
    }
    return (
-      <MeterDetailsWrapper monthlyConsumption={nescoMeterResponse.data?.monthlyConsumption || []} rechargeHistory={nescoMeterResponse.data?.rechargeHistory || []} customer={nescoMeterResponse.data?.customer} />
+      <MeterDetailsWrapper monthlyConsumption={nescoMeterResponse.data?.monthlyConsumption || []} rechargeHistory={nescoMeterResponse.data?.rechargeHistory || []} customer={nescoMeterResponse.data.customer} />
    );
 };
