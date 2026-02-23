@@ -71,7 +71,7 @@ async function saveCustomerData(
 
 /**
  * Save recharge history to database using bulk operations
- * Only saves new records (prevents duplicates)
+ * Updates existing records or creates new ones (upsert)
  */
 async function saveRechargeHistory(
   rechargeHistory: ScrapedRechargeRecord[],
@@ -83,70 +83,39 @@ async function saveRechargeHistory(
   }
 
   try {
-    // Get all existing tokens in one query (bulk operation)
-    const tokens = rechargeHistory.map(r => r.token);
-    const existingRecords = await RechargeHistory.find(
-      {
-        consumerNumber,
-        token: { $in: tokens },
+    // Prepare bulk write operations - upsert each record
+    const bulkOps = rechargeHistory.map(r => ({
+      updateOne: {
+        filter: {
+          consumerNumber,
+          token: r.token,
+        },
+        update: {
+          $set: {
+            ...r,
+            userId,
+            scrapedAt: new Date(),
+          },
+        },
+        upsert: true,
       },
-      { token: 1 }
-    ).lean();
+    }));
 
-    const existingTokens = new Set(existingRecords.map(r => r.token));
-
-    // Filter new records
-    const newRecords = rechargeHistory
-      .filter(r => !existingTokens.has(r.token))
-      .map(r => ({
-        ...r,
-        consumerNumber,
-        userId,
-        scrapedAt: new Date(),
-      }));
-
-    // Bulk insert new records
-    let saved = 0;
-    if (newRecords.length > 0) {
-      const result = await RechargeHistory.insertMany(newRecords, {
-        ordered: false, // Continue on error
-      });
-      saved = result.length;
-    }
-
-    const skipped = rechargeHistory.length - saved;
+    // Execute bulk write
+    const result = await RechargeHistory.bulkWrite(bulkOps);
+    
+    // Count inserted and updated records
+    const saved = (result.upsertedCount || 0) + (result.modifiedCount || 0);
 
     logger.info('Recharge history saved', {
       consumerNumber,
-      saved,
-      skipped,
+      inserted: result.upsertedCount,
+      updated: result.modifiedCount,
+      total: saved,
     });
 
-    return { saved, skipped };
+    return { saved, skipped: 0 };
   } catch (error) {
-    // Handle bulk insert errors
-    if (error && typeof error === 'object' && 'writeErrors' in error) {
-      const writeErrors = (error as any).writeErrors || [];
-      const saved = rechargeHistory.length - writeErrors.length;
-      const skipped = writeErrors.length;
-      
-      logger.warn('Some recharge records failed to save', {
-        consumerNumber,
-        saved,
-        failed: skipped,
-      });
-
-      return {
-        saved,
-        skipped,
-        errors: writeErrors.map((e: any) => {
-          const token = e.err.op?.token || 'unknown';
-          const errmsg = e.err.errmsg || 'Unknown error';
-          return `Token ${token}: ${errmsg}`;
-        }),
-      };
-    }
-
     logger.error('Error saving recharge history', {
       error: error instanceof Error ? error.message : 'Unknown',
       consumerNumber,
