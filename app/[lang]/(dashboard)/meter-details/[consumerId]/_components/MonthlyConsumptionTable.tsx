@@ -10,12 +10,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MonthlyConsumptionType } from "@/types/monthly-consumption-type";
+import { ScrapedMonthlyConsumption } from "@/types";
 
 export function MonthlyConsumptionTable({
   data,
 }: {
-  data: MonthlyConsumptionType[] | undefined;
+  data: ScrapedMonthlyConsumption[] | undefined;
 }) {
   if (!data || data.length === 0) {
     return (
@@ -53,7 +53,7 @@ export function MonthlyConsumptionTable({
           </TableHeader>
           <TableBody>
             {data.map((consumption) => (
-              <TableRow key={consumption.id}>
+              <TableRow key={`${consumption.year}-${consumption.month}`}>
                 <TableCell className="font-medium">{consumption.year}</TableCell>
                 <TableCell>{consumption.month}</TableCell>
                 <TableCell className="text-right">{consumption.energyUsageKwh}</TableCell>

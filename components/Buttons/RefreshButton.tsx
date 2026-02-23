@@ -1,10 +1,10 @@
 import { useTransition } from 'react';
 import { Button } from '../ui/button';
 import { RefreshCcw } from 'lucide-react';
-import { NescoMeterDataType } from '@/types';
+import { ScrapedData } from '@/types';
 import { toast } from 'sonner'; 
 
-const RefreshButton = ({ consumerNumber, meterName, onRefreshMeter, isShowLabel = false, className }: { consumerNumber: string, meterName: string, onRefreshMeter: (updatedMeter: NescoMeterDataType) => void, isShowLabel?: boolean, className?: string }) => {
+const RefreshButton = ({ consumerNumber, meterName, onRefreshMeter, isShowLabel = false, className }: { consumerNumber: string, meterName: string, onRefreshMeter: (data: ScrapedData) => void, isShowLabel?: boolean, className?: string }) => {
    const [isPending, startTransition] = useTransition();
 
    const handleRefresh = async () => {
@@ -18,40 +18,20 @@ const RefreshButton = ({ consumerNumber, meterName, onRefreshMeter, isShowLabel 
             const result = await response.json();
             console.log("Refresh result:", result);
 
-            if (result.success) {
-               const updatedCustomer = result.data.customer;
-               const updatedNotice = result.data.notice;
-               const updatedRechargeHistory = result.data.rechargeHistory;
-               const updatedMonthlyConsumption = result.data.monthlyConsumption;
-
-               const updatedMeter = {
-                  consumerNumber: updatedCustomer.consumerNumber,
-                  customerName: updatedCustomer.customerName,
-                  meterName: meterName,
-                  mobile: updatedCustomer.mobile,
-                  meterNumber: updatedCustomer.meterNumber,
-                  meterStatus: updatedCustomer.meterStatus,
-                  meterType: updatedCustomer.meterType,
-                  sanctionedLoadKw: updatedCustomer.sanctionedLoadKw,
-                  tariff: updatedCustomer.tariff,
-                  meterInstallationDate: updatedCustomer.meterInstallationDate,
-                  minimumRechargeAmount: String(updatedCustomer.minimumRechargeAmount),
-                  remainingBalance: String(updatedCustomer.remainingBalance),
-                  updatedAt: new Date().toISOString(),
-                  hasNotice: result.data.notice.hasNotice,
-                  noticeMessage: result.data.notice.noticeMessage,
-                  feederName: updatedCustomer.feederName,
-                  electricityOffice: updatedCustomer.electricityOffice, 
-               } as NescoMeterDataType;
-               
-               onRefreshMeter(updatedMeter);
-               toast.success("Meter Updated successfully", { position: "top-right" })
+            if (result.success && result.data) { 
+               try {
+                  onRefreshMeter(result.data);
+                  toast.success("Meter Updated successfully", { position: "top-right" })
+               } catch (callbackError) {
+                  console.error("Error in onRefreshMeter callback:", callbackError);
+                  toast.error("Failed to update meter data", { position: "top-right" })
+               }
             } else {
                toast.error(result.message || "Failed to update meter", { position: "top-right" })
             }
          } catch (error) {
             toast.error("Failed to update meter", { position: "top-right" })
-            console.log("error", error);
+            console.error("error", error);
          }
       })
    }

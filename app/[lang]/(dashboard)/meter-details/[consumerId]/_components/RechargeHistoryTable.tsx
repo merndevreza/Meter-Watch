@@ -11,12 +11,12 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { RechargeHistoryType } from "@/types/recharge-type";
+import { ScrapedRechargeRecord } from "@/types";
 
 export function RechargeHistoryTable({
   data,
 }: {
-  data: RechargeHistoryType[] | undefined;
+  data: ScrapedRechargeRecord[] | undefined;
 }) {
   if (!data || data.length === 0) {
     return (
@@ -68,7 +68,7 @@ export function RechargeHistoryTable({
           </TableHeader>
           <TableBody>
             {data.map((recharge) => (
-              <TableRow key={recharge.id}>
+              <TableRow key={`${recharge.serialNo}-${recharge.rechargeDate}`}>
                 <TableCell className="font-medium">
                   {new Date(recharge.rechargeDate).toLocaleDateString()}
                 </TableCell>

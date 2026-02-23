@@ -55,12 +55,10 @@ type ScrapedMetadata = {
 // ============================================================================
 
 /**
- * Customer - Core customer/meter information
- * Used by: Database, API, Frontend
+ * CoreCustomerInfo - Common customer/meter information
+ * Shared between ScrapedCustomerData and Customer
  */
-export interface Customer extends EntityMetadata {
-  userId: string;
-
+type CoreCustomerInfo = {
   // Basic Information
   customerName: string;
   fatherHusbandName: string;
@@ -73,7 +71,6 @@ export interface Customer extends EntityMetadata {
   consumerNumber: string;
 
   // Meter Information
-  meterName: string;
   meterNumber: string;
   sanctionedLoadKw: string;
   tariff: string;
@@ -84,6 +81,17 @@ export interface Customer extends EntityMetadata {
   // Balance Information
   minimumRechargeAmount: number;
   remainingBalance: number;
+};
+
+/**
+ * Customer - Core customer/meter information
+ * Used by: Database, API, Frontend
+ */
+export interface Customer extends EntityMetadata, CoreCustomerInfo {
+  userId: string;
+
+  // Meter Information
+  meterName: string;
 
   // Notice Information
   hasNotice: boolean;
@@ -138,23 +146,7 @@ export interface MonthlyConsumption extends EntityMetadata, EntityReferences, Pe
 /**
  * Raw customer data as scraped from NESCO portal
  */
-export interface ScrapedCustomerData {
-  customerName: string;
-  fatherHusbandName: string;
-  address: string;
-  mobile: string;
-  electricityOffice: string;
-  feederName: string;
-  consumerNumber: string;
-  meterNumber: string;
-  sanctionedLoadKw: string;
-  tariff: string;
-  meterType: string;
-  meterStatus: string;
-  meterInstallationDate: string;
-  minimumRechargeAmount: number;
-  remainingBalance: number;
-}
+export type ScrapedCustomerData = CoreCustomerInfo;
 
 /**
  * Raw recharge record as scraped from NESCO portal
