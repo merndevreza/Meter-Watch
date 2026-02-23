@@ -1,10 +1,16 @@
+import { getDictionary, hasLocale } from '@/app/[lang]/dictionaries/dictionaries';
 import MeterDetailsWrapper from './_components/MeterDetailsWrapper';
 import { getNescoMeterByID } from '@/app/actions/getNescoMeterByID';
+import { notFound } from 'next/navigation';
 
 export default async function Page({ params }: {
    params: Promise<{ lang: "en" | "bn", consumerId: string }>
 }) {
    const { lang, consumerId } = await params;
+
+   if (!hasLocale(lang)) notFound();
+   const dictionary = await getDictionary(lang);
+   
    const nescoMeterResponse = await getNescoMeterByID(consumerId);
    if (!nescoMeterResponse.success || !nescoMeterResponse.data) {
       return (
@@ -14,6 +20,6 @@ export default async function Page({ params }: {
       );
    }
    return (
-      <MeterDetailsWrapper monthlyConsumption={nescoMeterResponse.data?.monthlyConsumption || []} rechargeHistory={nescoMeterResponse.data?.rechargeHistory || []} customer={nescoMeterResponse.data.customer} />
+      <MeterDetailsWrapper monthlyConsumption={nescoMeterResponse.data?.monthlyConsumption || []} rechargeHistory={nescoMeterResponse.data?.rechargeHistory || []} customer={nescoMeterResponse.data.customer} dictionary ={dictionary} />
    );
 };

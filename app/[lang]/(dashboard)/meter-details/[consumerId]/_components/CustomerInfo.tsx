@@ -3,7 +3,6 @@ import {
    ArrowLeft,
    Zap,
    User,
-   Trash,
    CalendarClock,
    Wallet
 } from "lucide-react";
@@ -16,9 +15,21 @@ import { ChartAreaInteractive } from "./ChartAreaInteractive";
 import { NescoMeterDataType } from "@/types/meter-type";
 import RefreshButton from "@/components/Buttons/RefreshButton";
 import { ScrapedData, ScrapedMonthlyConsumption, ScrapedRechargeRecord } from "@/types";
+import { useRouter } from "next/navigation";
+import { Dictionary } from "@/types/dictionary";
+import DeleteMeterButton from "@/components/Buttons/DeleteMeterButton";
 
+type CustomerInfoProps = {
+   customerData: NescoMeterDataType;
+   chartData: { month: string; usage: number }[];
+   setCustomerData: (customerData: NescoMeterDataType) => void;
+   setMonthlyConsumptionData: (monthlyConsumptionData: ScrapedMonthlyConsumption[]) => void;
+   setRechargeHistoryData: (rechargeHistoryData: ScrapedRechargeRecord[]) => void;
+   dictionary: Dictionary;
+};
 
-export default function CustomerInfo({ customerData, chartData, setCustomerData, setMonthlyConsumptionData, setRechargeHistoryData }: { customerData: NescoMeterDataType, chartData: { month: string, usage: number }[], setCustomerData: (customerData: NescoMeterDataType) => void, setMonthlyConsumptionData: (monthlyConsumptionData: ScrapedMonthlyConsumption[]) => void, setRechargeHistoryData: (rechargeHistoryData: ScrapedRechargeRecord[]) => void }) {
+export default function CustomerInfo({ customerData, chartData, setCustomerData, setMonthlyConsumptionData, setRechargeHistoryData, dictionary }: CustomerInfoProps) {
+   const router = useRouter();
    const isLowBalance = Number(customerData.remainingBalance) <= Number(customerData.minimumRechargeAmount);
 
    const onRefreshMeter = (responseData: ScrapedData) => {
@@ -35,7 +46,7 @@ export default function CustomerInfo({ customerData, chartData, setCustomerData,
             id: customerData.id,
             consumerNumber: updatedCustomer.consumerNumber,
             customerName: updatedCustomer.customerName,
-            meterName: customerData.meterName,  
+            meterName: customerData.meterName,
             mobile: updatedCustomer.mobile,
             meterNumber: updatedCustomer.meterNumber,
             meterStatus: updatedCustomer.meterStatus,
@@ -67,6 +78,12 @@ export default function CustomerInfo({ customerData, chartData, setCustomerData,
          throw error;
       }
    }
+   const onDeleteMeter = () => {
+      setCustomerData({} as NescoMeterDataType);
+      setMonthlyConsumptionData([]);
+      setRechargeHistoryData([]);
+      router.push('/');
+   };
    return (
       <div className=" w-full space-y-8">
 
@@ -86,9 +103,7 @@ export default function CustomerInfo({ customerData, chartData, setCustomerData,
                <Button variant="outline" size="sm" className="hidden sm:flex gap-2">
                   <Wallet className="h-4 w-4" /> Update Threshold
                </Button>
-               <Button variant="outline" size="sm" className="hidden sm:flex gap-2">
-                  <Trash className="h-4 w-4" /> Delete Meter
-               </Button>
+               <DeleteMeterButton consumerNumber={customerData.consumerNumber} onDeleteMeter={onDeleteMeter} dictionary={dictionary} className="flex gap-2" isShowLabel={true} /> 
             </div>
          </div>
 

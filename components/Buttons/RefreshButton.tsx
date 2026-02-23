@@ -4,7 +4,15 @@ import { RefreshCcw } from 'lucide-react';
 import { ScrapedData } from '@/types';
 import { toast } from 'sonner'; 
 
-const RefreshButton = ({ consumerNumber, meterName, onRefreshMeter, isShowLabel = false, className }: { consumerNumber: string, meterName: string, onRefreshMeter: (data: ScrapedData) => void, isShowLabel?: boolean, className?: string }) => {
+type RefreshButtonProps = {
+   consumerNumber: string;
+   meterName: string;
+   onRefreshMeter: (data: ScrapedData) => void;
+   isShowLabel?: boolean;
+   className?: string;
+}
+
+const RefreshButton = ({ consumerNumber, meterName, onRefreshMeter, isShowLabel = false, className }: RefreshButtonProps) => {
    const [isPending, startTransition] = useTransition();
 
    const handleRefresh = async () => {

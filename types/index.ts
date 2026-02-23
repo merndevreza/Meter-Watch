@@ -293,6 +293,8 @@ export interface DeleteConfirmationModalProps {
   description: string;
   onClose: () => void;
   onDelete: () => void | Promise<void>;
+  isDeleting?: boolean;
+  isDeleted?: boolean;
 }
 
 /**

@@ -19,4 +19,6 @@ export type DeleteConfirmationModalProps = {
     description: string;
     onClose: () => void;
     onDelete: () => void;
+    isDeleting?: boolean;
+    isDone?: boolean;
 }

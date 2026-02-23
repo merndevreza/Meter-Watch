@@ -4,8 +4,15 @@ import CustomerInfo from './CustomerInfo';
 import { MonthlyConsumptionTable } from './MonthlyConsumptionTable';
 import { RechargeHistoryTable } from './RechargeHistoryTable';
 import { ScrapedMonthlyConsumption, ScrapedRechargeRecord, NescoMeterDataType } from '@/types';
+import { Dictionary } from '@/types/dictionary';
+type MeterDetailsWrapperProps = {
+   monthlyConsumption: ScrapedMonthlyConsumption[];
+   rechargeHistory: ScrapedRechargeRecord[];
+   customer: NescoMeterDataType | null;
+   dictionary: Dictionary;
+};
 
-const MeterDetailsWrapper = ({ monthlyConsumption, rechargeHistory, customer }: { monthlyConsumption: ScrapedMonthlyConsumption[], rechargeHistory: ScrapedRechargeRecord[], customer: NescoMeterDataType | null }) => {
+const MeterDetailsWrapper = ({ monthlyConsumption, rechargeHistory, customer, dictionary }: MeterDetailsWrapperProps) => {
    const [customerData, setCustomerData] = React.useState<NescoMeterDataType | null>(customer);
    const [monthlyConsumptionData, setMonthlyConsumptionData] = React.useState<ScrapedMonthlyConsumption[]>(monthlyConsumption);
    const [rechargeHistoryData, setRechargeHistoryData] = React.useState<ScrapedRechargeRecord[]>(rechargeHistory);
@@ -17,7 +24,7 @@ const MeterDetailsWrapper = ({ monthlyConsumption, rechargeHistory, customer }: 
 
    return (
       <div className="space-y-8">
-         {customerData && <CustomerInfo chartData={chartData} customerData={customerData} setCustomerData={setCustomerData} setMonthlyConsumptionData={setMonthlyConsumptionData} setRechargeHistoryData={setRechargeHistoryData} />}
+         {customerData && <CustomerInfo chartData={chartData} customerData={customerData} setCustomerData={setCustomerData} setMonthlyConsumptionData={setMonthlyConsumptionData} dictionary={dictionary} setRechargeHistoryData={setRechargeHistoryData} /> }
          {monthlyConsumptionData && <MonthlyConsumptionTable data={monthlyConsumptionData} />}
          {rechargeHistoryData && <RechargeHistoryTable data={rechargeHistoryData} />}
       </div>
