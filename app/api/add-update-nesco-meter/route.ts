@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { auth } from '@/auth'; 
+import { auth } from '@/auth';
 import { logger } from '@/lib/logger';
 import { metrics } from '@/lib/metrics';
 import { rateLimiter } from '@/lib/rate-limiter';
 import { AppError, ErrorCode } from '@/lib/errors';
-import { ScrapedData } from '@/types/scrape-type';
+import { ScrapedData } from '@/types';
 import { createScraperService } from './utils/scraper.service';
 import { saveScrapedData } from './utils/database.utils';
 
@@ -75,7 +75,7 @@ export async function POST(request: Request) {
     const scrapePromise = scraperService.scrapeCustomerData(
       validatedData.consumerNumber
     );
-    
+
     const timeoutPromise = new Promise<ScrapedData>((_, reject) =>
       setTimeout(
         () => reject(new AppError(
@@ -115,6 +115,8 @@ export async function POST(request: Request) {
       message: 'Data scraped and saved successfully',
       data: {
         customer: scrapedData.customer,
+        rechargeHistory: scrapedData.rechargeHistory,
+        monthlyConsumption: scrapedData.monthlyConsumption,
         notice: scrapedData.notice,
       },
       saved: savedDataResult.summary,

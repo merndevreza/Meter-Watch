@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { ThresholdUpdaterModalProps } from '@/types/modal';
+import { ThresholdUpdaterModalProps } from '@/types';
 import { toast } from 'sonner';
 
 const ThresholdUpdaterModal = ({ dictionary, currentThreshold, consumerNumber, onThresholdUpdate, setShowModal }: ThresholdUpdaterModalProps) => {

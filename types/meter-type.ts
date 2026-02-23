@@ -1,21 +1,5 @@
 import { Dictionary } from "./dictionary";
-
-export type MeterDataType = {
-   id: string;
-   meterName: string;
-   meterNumber: number;
-   sanctionLoad: number;
-   sanctionTariff: string;
-   meterType: string;
-   isActive: boolean;
-   minimumRechargeThreshold: number;
-   currentBalance: number;
-   meterInstallationDate: string;
-   createdAt?: string;
-   createdBy?: string;
-   meterOwner?: string;
-   updatedAt?: string;
-}
+ 
 export type NescoMeterDataType = {
    id: string;
    meterName: string;

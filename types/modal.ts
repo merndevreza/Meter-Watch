@@ -5,15 +5,7 @@ export interface ModalPortalProps {
     setShowModal: (state: boolean) => void;
     className?: string;
 }
-
-export type BalanceUpdaterModalProps = {
-    dictionary:Dictionary;
-    currentBalance: number;
-    mongoId: string;
-    onBalanceUpdate: (consumerNumber: string, newBalance: number) => void;
-    setShowModal: (state: boolean) => void;
-    modalType: "recharge" | "balance-use"
-};
+ 
 export type ThresholdUpdaterModalProps = {
     dictionary:Dictionary; 
     consumerNumber: string;

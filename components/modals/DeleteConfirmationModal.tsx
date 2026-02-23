@@ -1,7 +1,7 @@
 "use client";
 import { Info } from 'lucide-react';
 import { Button } from '../ui/button';
-import { DeleteConfirmationModalProps } from '@/types/modal';
+import { DeleteConfirmationModalProps } from '@/types';
 
 const DeleteConfirmationModal = ({ title, description, onClose, onDelete }: DeleteConfirmationModalProps) => {
    return (

@@ -1,36 +1,12 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
+import { MonthlyConsumption as MonthlyConsumptionType } from '@/types';
 
 /**
- * Monthly Consumption Interface
+ * IMonthlyConsumption - Mongoose Document interface
+ * Extends the base MonthlyConsumption type for Mongoose document methods
+ * Omit _id from MonthlyConsumptionType to avoid conflict with Document's _id
  */
-export interface IMonthlyConsumption extends Document {
-  // Period
-  year: string;
-  month: string;
-  
-  // Financial data (keeping as strings to preserve original format from NESCO)
-  // Can be parsed to numbers in application layer if needed for calculations
-  totalRecharge: string;
-  rebate: string;
-  energyUsage: string;
-  meterRent: string;
-  demandCharge: string;
-  pfcCharge: string;
-  paidDebt: string;
-  vat: string;
-  totalUsageDeduction: string;
-  monthEndMeterBalance: string;
-  energyUsageKwh: string;
-  
-  // References
-  consumerNumber: string;
-  userId: string;
-  
-  // Metadata
-  scrapedAt: Date;
-  createdAt: Date;
-  updatedAt: Date;
-}
+export interface IMonthlyConsumption extends Document, Omit<MonthlyConsumptionType, '_id'> {}
 
 /**
  * Monthly Consumption Schema

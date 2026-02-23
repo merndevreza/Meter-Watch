@@ -1,46 +1,12 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
+import { Customer as CustomerType } from '@/types';
 
 /**
- * Customer Interface
+ * ICustomer - Mongoose Document interface
+ * Extends the base Customer type for Mongoose document methods
+ * Omit _id from CustomerType to avoid conflict with Document's _id
  */
-export interface ICustomer extends Document {
-  // Basic Information
-  customerName: string;
-  fatherHusbandName: string;
-  address: string;
-  mobile: string;
-
-  // Electricity Office Details
-  electricityOffice: string;
-  feederName: string;
-  consumerNumber: string;
-
-  // Meter Information
-  meterName: string;
-  meterNumber: string;
-  sanctionedLoadKw: string;
-  tariff: string;
-  meterType: string;
-  meterStatus: string;
-  meterInstallationDate: string;
-
-  // Balance Information
-  minimumRechargeAmount: number;
-  remainingBalance: number;
-
-  // Notice Information
-  hasNotice: boolean;
-  noticeMessage: string | null;
-  noticeLastChecked: Date;
-
-  // User Association
-  userId: string;
-
-  // Timestamps
-  lastScraped: Date;
-  createdAt: Date;
-  updatedAt: Date;
-}
+export interface ICustomer extends Document, Omit<CustomerType, '_id'> {}
 
 /**
  * Customer Schema with validation

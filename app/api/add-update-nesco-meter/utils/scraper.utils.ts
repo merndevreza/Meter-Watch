@@ -1,6 +1,11 @@
 import { CheerioAPI } from 'cheerio';
 import { decode } from 'he';
-import { CustomerData, RechargeRecord, MonthlyConsumption, ArrearNotice } from '@/types/scrape-type';
+import { 
+  ScrapedCustomerData, 
+  ScrapedRechargeRecord, 
+  ScrapedMonthlyConsumption, 
+  ArrearNotice 
+} from '@/types';
 import { AppError, ErrorCode } from '@/lib/errors';
 
 // Constants for validation
@@ -28,7 +33,7 @@ function parseNumber(str: string): number {
 /**
  * Extract customer data from the page
  */
-export function extractCustomerData($: CheerioAPI): CustomerData {
+export function extractCustomerData($: CheerioAPI): ScrapedCustomerData {
   try {
     const inputValues = $('.card-body .form-horizontal input[disabled]')
       .map((_: number, el: any) => {
@@ -76,7 +81,7 @@ export function extractCustomerData($: CheerioAPI): CustomerData {
 /**
  * Extract recharge history records from the table
  */
-export function extractRechargeHistory($: CheerioAPI): RechargeRecord[] {
+export function extractRechargeHistory($: CheerioAPI): ScrapedRechargeRecord[] {
   try {
     const records = $('.table tbody tr')
       .map((_: number, row: any) => {
@@ -104,7 +109,7 @@ export function extractRechargeHistory($: CheerioAPI): RechargeRecord[] {
         };
       })
       .get()
-      .filter((record: RechargeRecord | null): record is RechargeRecord => 
+      .filter((record: ScrapedRechargeRecord | null): record is ScrapedRechargeRecord => 
         record !== null && record.token !== ''
       );
 
@@ -121,7 +126,7 @@ export function extractRechargeHistory($: CheerioAPI): RechargeRecord[] {
 /**
  * Extract monthly consumption records from the table
  */
-export function extractMonthlyConsumption($: CheerioAPI): MonthlyConsumption[] {
+export function extractMonthlyConsumption($: CheerioAPI): ScrapedMonthlyConsumption[] {
   try {
     const rows = $('.table.bfont_post tbody tr');
 
@@ -150,7 +155,7 @@ export function extractMonthlyConsumption($: CheerioAPI): MonthlyConsumption[] {
         };
       })
       .get()
-      .filter((record: MonthlyConsumption | null): record is MonthlyConsumption => 
+      .filter((record: ScrapedMonthlyConsumption | null): record is ScrapedMonthlyConsumption => 
         record !== null && record.year !== '' && record.month !== ''
       );
 

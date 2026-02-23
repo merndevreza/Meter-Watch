@@ -1,6 +1,6 @@
-import { load, CheerioAPI } from 'cheerio';
+import { load } from 'cheerio';
 import type { Browser, Page } from 'puppeteer';
-import { ScrapedData } from '@/types/scrape-type';
+import { ScrapedData } from '@/types';
 import { AppError, ErrorCode } from '@/lib/errors';
 import { logger } from '@/lib/logger';
 import {

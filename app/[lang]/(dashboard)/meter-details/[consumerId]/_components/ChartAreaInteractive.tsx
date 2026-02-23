@@ -12,8 +12,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
-} from "@/components/ui/chart" 
-import { MonthlyConsumptionType } from "@/types/monthly-consumption-type"
+} from "@/components/ui/chart"  
 
 export const description = "An interactive area chart"
 
@@ -24,21 +23,21 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function ChartAreaInteractive({ monthlyConsumption }: { monthlyConsumption: MonthlyConsumptionType[] }) { 
+export function ChartAreaInteractive({ chartData }: { chartData: { month: string, usage: number }[] }) { 
  
-  const filteredData = monthlyConsumption.map((item) => {
-    const date = new Date(`${item.year}-${item.month}-01`)
+  const filteredData = chartData.map((item) => {
+    const date = new Date(`${item.month.split('/')[1]}-${item.month.split('/')[0]}-01`)
     const monthName = date.toLocaleDateString("en-US", {
       month: "short",
       year: "numeric",
-    }) 
+    })
 
     return {
       date: monthName,
-      totalUsageDeduction: Number(item.totalUsageDeduction) || 0,
+      totalUsageDeduction: Number(item.usage) || 0,
     }
   })
-  if (!monthlyConsumption || filteredData.length === 0) {
+  if (!chartData || filteredData.length === 0) {
     return (
       <Card>
       <CardHeader >

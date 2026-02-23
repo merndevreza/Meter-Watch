@@ -16,7 +16,7 @@ const replaceMongoIdInArray = <T extends MongoObject>(array: T[]) => {
       id: _id.toString(),
       ...rest,
     } as Omit<T, '_id'> & { id: string };
-  });
+  }) as unknown[];
 };
 
 /**

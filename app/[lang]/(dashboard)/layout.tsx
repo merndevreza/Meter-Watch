@@ -7,7 +7,7 @@ import {
    SidebarInset,
    SidebarProvider,
 } from "@/components/ui/sidebar"
-import { User } from '@/types/user';
+import { User } from '@/types';
 
 export default async function DashboardLayout({
    params,
@@ -24,8 +24,7 @@ export default async function DashboardLayout({
 
    const dictionary = await getDictionary(currentLang);
    const session = await auth();
- console.log("session--1",session);
- 
+
    if (!session?.user) {
       redirect(`/${lang}/login`);
    } else {

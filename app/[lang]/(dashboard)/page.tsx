@@ -2,7 +2,7 @@
 import { notFound } from 'next/navigation';
 import { getDictionary, hasLocale } from "../dictionaries/dictionaries";
 import MeterCardsWrapper from './_components/MeterCardsWrapper';
-import { NescoMeterDataType } from '@/types/meter-type';
+import { NescoMeterDataType } from '@/types';
 import { Dictionary } from '@/types/dictionary';
 import { fetchNescoMeters } from '@/app/actions/getNescoMeters';
 

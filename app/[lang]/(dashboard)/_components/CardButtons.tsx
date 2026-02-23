@@ -1,19 +1,18 @@
 "use client";
 import ModalPortal from '@/components/modals/ModalPortal';
 import { Button } from '@/components/ui/button';
-import { MeterCardButtonsProps, NescoMeterDataType } from '@/types/meter-type';
-import { RefreshCcw, Trash } from 'lucide-react';
+import { MeterCardButtonsProps } from '@/types';
+import { Trash } from 'lucide-react';
 import Link from 'next/link';
-import { useState, useTransition } from 'react';
+import { useState} from 'react';
 import DeleteConfirmationModal from '@/components/modals/DeleteConfirmationModal';
 import ThresholdUpdaterModal from './ThresholdUpdaterModal';
-import { toast } from "sonner";
 import { useParams } from 'next/navigation'; 
+import RefreshButton from '@/components/Buttons/RefreshButton';
 
 const CardButtons = ({ dictionary, consumerNumber, onDeleteMeter, onThresholdUpdate, onRefreshMeter, currentThreshold, meterName }: MeterCardButtonsProps) => {
    const [showThresholdModal, setShowThresholdModal] = useState(false);
    const [showConfirmationModal, setShowConfirmationModal] = useState(false);
-   const [isPending, startTransition] = useTransition();
    const params = useParams();
    const lang = params.lang as string;
    
@@ -37,51 +36,6 @@ const CardButtons = ({ dictionary, consumerNumber, onDeleteMeter, onThresholdUpd
       }
    }
 
-   const handleRefresh = async () => {
-      startTransition(async () => {
-         try {
-            const response = await fetch('/api/add-update-nesco-meter', {
-               method: 'POST',
-               headers: { 'Content-Type': 'application/json' },
-               body: JSON.stringify({ consumerNumber, meterName, existingCustomer: true }),
-            });
-            const result = await response.json();
-            console.log("Refresh result:", result);
-            
-            if (result.success && result.data?.customer) {
-               const updatedCustomer = result.data.customer;
-               const updatedMeter = {
-                  consumerNumber: updatedCustomer.consumerNumber,
-                  customerName: updatedCustomer.customerName,
-                  meterName: meterName,
-                  mobile: updatedCustomer.mobile,
-                  meterNumber: updatedCustomer.meterNumber,
-                  meterStatus: updatedCustomer.meterStatus,
-                  meterType: updatedCustomer.meterType,
-                  sanctionedLoadKw: updatedCustomer.sanctionedLoadKw,
-                  tariff: updatedCustomer.tariff,
-                  meterInstallationDate: updatedCustomer.meterInstallationDate,
-                  minimumRechargeAmount: String(updatedCustomer.minimumRechargeAmount),
-                  remainingBalance: String(updatedCustomer.remainingBalance),
-                  updatedAt: new Date().toISOString(),
-                  hasNotice: result.data.notice.hasNotice,
-                  noticeMessage: result.data.notice.noticeMessage,
-                  feederName: updatedCustomer.feederName,
-                  electricityOffice: updatedCustomer.electricityOffice,
-                  id: '', // Keep existing id from state
-               } as NescoMeterDataType;
-               onRefreshMeter(updatedMeter);
-               toast.success("Meter Updated successfully", { position: "top-right" })
-            } else {
-               toast.error(result.message || "Failed to update meter", { position: "top-right" })
-            }
-         } catch (error) {
-            toast.error("Failed to update meter", { position: "top-right" })
-            console.log("error", error);
-         }
-      })
-   }
-
    return (
       <div className="flex flex-wrap gap-3 pt-1">
          <Link className='flex-1' href={`${lang}/meter-details/${consumerNumber}`}>
@@ -93,9 +47,7 @@ const CardButtons = ({ dictionary, consumerNumber, onDeleteMeter, onThresholdUpd
             Update {dictionary.threshold}
          </Button>
          <div className="flex gap-2 w-full sm:w-auto">
-            <Button onClick={handleRefresh} variant="outline" size="icon" className="h-11 w-11 flex-1 sm:flex-none border-muted-foreground/20 hover:bg-accent">
-               <RefreshCcw className={`${isPending ? "animate-spin" : ""} h-5 w-5`} />
-            </Button>
+            <RefreshButton consumerNumber={consumerNumber} meterName={meterName} onRefreshMeter={onRefreshMeter} isShowLabel={false}  className="h-11 w-11 flex-1 sm:flex-none border-muted-foreground/20 hover:bg-accent"/> 
          </div>
          <div className="flex gap-2 w-full sm:w-auto">
             <Button onClick={() => setShowConfirmationModal(true)} variant="outline" size="icon" className="h-11 w-11 flex-1 sm:flex-none text-destructive border-destructive/20 hover:bg-destructive/5">

@@ -2,7 +2,6 @@
 import {
    ArrowLeft,
    Zap,
-   RefreshCw,
    User,
    Trash,
    CalendarClock,
@@ -15,11 +14,16 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ChartAreaInteractive } from "./ChartAreaInteractive";
 import { NescoMeterDataType } from "@/types/meter-type";
-import { MonthlyConsumptionType } from "@/types/monthly-consumption-type";
+import RefreshButton from "@/components/Buttons/RefreshButton";
+import { useRouter } from "next/navigation";
 
 
-export default function CustomerInfo({ customer, monthlyConsumption }: { customer: NescoMeterDataType, monthlyConsumption: MonthlyConsumptionType[] }) {
+export default function CustomerInfo({ customer, chartData }: { customer: NescoMeterDataType, chartData: { month: string, usage: number }[] }) {
+   const router = useRouter();
    const isLowBalance = Number(customer.remainingBalance) <= Number(customer.minimumRechargeAmount);
+   const onRefreshMeter = () => {
+      router.refresh();
+   }
    return (
       <div className=" w-full space-y-8">
 
@@ -35,9 +39,7 @@ export default function CustomerInfo({ customer, monthlyConsumption }: { custome
 
             {/* Actions Toolbar */}
             <div className="flex items-center gap-2">
-               <Button variant="outline" size="sm" className="hidden sm:flex gap-2">
-                  <RefreshCw className="h-4 w-4" /> Refresh
-               </Button>
+               <RefreshButton consumerNumber={customer.consumerNumber} meterName={customer.meterName} onRefreshMeter={onRefreshMeter} isShowLabel={true} className="flex gap-2" />
                <Button variant="outline" size="sm" className="hidden sm:flex gap-2">
                   <Wallet className="h-4 w-4" /> Update Threshold
                </Button>
@@ -125,7 +127,7 @@ export default function CustomerInfo({ customer, monthlyConsumption }: { custome
                   </p>
                </div>
             </Card>
-            <ChartAreaInteractive monthlyConsumption={monthlyConsumption} />
+            <ChartAreaInteractive chartData={chartData} />
          </div>
       </div>
    );

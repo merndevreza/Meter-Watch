@@ -1,40 +1,12 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
+import { RechargeHistory as RechargeHistoryType } from '@/types';
 
 /**
- * Recharge History Interface
+ * IRechargeHistory - Mongoose Document interface
+ * Extends the base RechargeHistory type for Mongoose document methods
+ * Omit _id from RechargeHistoryType to avoid conflict with Document's _id
  */
-export interface IRechargeHistory extends Document {
-  // Reference to customer
-  consumerNumber: string;
-  userId: string;
-  
-  // Recharge Details
-  serialNo: string;
-  token: string;
-  
-  // Charges (keeping as strings to preserve original format)
-  meterRent: string;
-  demandCharge: string;
-  pfcCharge: string;
-  vat: string;
-  paidDebtFine: string;
-  rebate: string;
-  
-  // Amounts
-  electricityAmount: string;
-  rechargeAmount: string;
-  estimatedEnergyKwh: string;
-  
-  // Transaction Info
-  rechargeMethod: string;
-  rechargeDate: string;
-  remoteRechargeStatus: string;
-  
-  // Metadata
-  scrapedAt: Date;
-  createdAt: Date;
-  updatedAt: Date;
-}
+export interface IRechargeHistory extends Document, Omit<RechargeHistoryType, '_id'> {}
 
 /**
  * Recharge History Schema

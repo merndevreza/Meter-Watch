@@ -5,9 +5,7 @@ import { MonthlyConsumptionModel } from '@/database/models/monthly-consumption-m
 import { RechargeHistory } from '@/database/models/recharge-history-model';
 import connectMongo from '@/database/services/connectMongo';
 import { replaceMongoIdInArray, replaceMongoIdInObject } from '@/lib/replaceMongoID';
-import { NescoMeterDataType } from '@/types/meter-type';
-import { MonthlyConsumptionType } from '@/types/monthly-consumption-type';
-import { RechargeHistoryType } from '@/types/recharge-type';
+import { NescoMeterDataType, MonthlyConsumptionType, RechargeHistoryType } from '@/types';
 
 type GetMeterResponse = {
    success: boolean;

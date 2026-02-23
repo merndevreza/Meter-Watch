@@ -1,4 +1,10 @@
-import { ScrapedData, CustomerData, RechargeRecord, MonthlyConsumption } from '@/types/scrape-type';
+import { 
+  ScrapedData, 
+  ScrapedCustomerData, 
+  ScrapedRechargeRecord, 
+  ScrapedMonthlyConsumption,
+  SavedDataSummary 
+} from '@/types';
 import { Customer } from '@/database/models/customer-model';
 import { RechargeHistory } from '@/database/models/recharge-history-model';
 import { MonthlyConsumptionModel } from '@/database/models/monthly-consumption-model';
@@ -6,13 +12,8 @@ import connectMongo from '@/database/services/connectMongo';
 import { logger } from '@/lib/logger';
 import { AppError, ErrorCode } from '@/lib/errors';
 
-export interface SavedDataSummary {
-  customer: boolean;
-  newRecharges: number;
-  duplicateRecharges: number;
-  newConsumption: number;
-  updatedConsumption: number;
-  errors?: string[];
+export interface SaveResult {
+  summary: SavedDataSummary;
 }
 
 /**
@@ -20,7 +21,7 @@ export interface SavedDataSummary {
  * Updates existing record or creates new one
  */
 async function saveCustomerData(
-  customerData: CustomerData,
+  customerData: ScrapedCustomerData,
   userId: string,
   meterName: string,
   notice: { hasNotice: boolean; noticeMessage: string | null },
@@ -73,7 +74,7 @@ async function saveCustomerData(
  * Only saves new records (prevents duplicates)
  */
 async function saveRechargeHistory(
-  rechargeHistory: RechargeRecord[],
+  rechargeHistory: ScrapedRechargeRecord[],
   consumerNumber: string,
   userId: string
 ): Promise<{ saved: number; skipped: number; errors?: string[] }> {
@@ -159,7 +160,7 @@ async function saveRechargeHistory(
  * Updates existing records or creates new ones
  */
 async function saveMonthlyConsumption(
-  consumptionData: MonthlyConsumption[],
+  consumptionData: ScrapedMonthlyConsumption[],
   consumerNumber: string,
   userId: string
 ): Promise<{ saved: number; skipped: number; errors?: string[] }> {
@@ -278,7 +279,7 @@ export async function saveScrapedData(
   userId: string,
   meterName: string,
   existingCustomer: boolean
-): Promise<{ summary: SavedDataSummary }> {
+): Promise<SaveResult> {
   try {
     // Connect to MongoDB
     await connectMongo();

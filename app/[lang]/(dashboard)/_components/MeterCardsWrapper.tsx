@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/popover"
 import { Zap, Calendar, Activity, Gauge, Grid2x2Check, Bell } from "lucide-react";
 import { Separator } from '@/components/ui/separator';
-import { NescoMeterDataType } from '@/types/meter-type';
+import { NescoMeterDataType } from '@/types';
 import CardButtons from './CardButtons';
 import { useState } from "react";
 import { Dictionary } from "@/types/dictionary";
@@ -49,7 +49,6 @@ const MeterCardsWrapper = ({ dictionary, metersData = [] }: { dictionary: Dictio
       });
       setAllMeters(updatedMeters);
    }
-   // onRefresh
 
    return (
       <div className="grid grid-cols-1 gap-6 xl:gap-8 xl:grid-cols-2 2xl:grid-cols-4">
