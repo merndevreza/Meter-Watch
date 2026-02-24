@@ -101,101 +101,67 @@ export async function GET(request: Request) {
       throw scraperError;
     }
 
-    // 5. Process customers in batches of 2 (max concurrent browsers allowed by Free plan)
+    // 5. Process each customer
     let successCount = 0;
     let failureCount = 0;
     const skipCount = 0;
-    const BATCH_SIZE = 2; // Max concurrent browsers on Browserless Free plan
-    const BATCH_DELAY = 2000; // 2 second delay between batches
 
-    if (!scraperService) {
-      throw new Error('Scraper service is not initialized');
-    }
+    for (let i = 0; i < customers.length; i++) {
+      const customer = customers[i];
+      const progress = `[${i + 1}/${customers.length}]`;
 
-    for (let i = 0; i < customers.length; i += BATCH_SIZE) {
-      const batch = customers.slice(i, i + BATCH_SIZE);
-      const batchNum = Math.floor(i / BATCH_SIZE) + 1;
-      const totalBatches = Math.ceil(customers.length / BATCH_SIZE);
-      
-      logger.info(`Processing batch ${batchNum}/${totalBatches} with ${batch.length} meters`);
+      try {
+        logger.info(`${progress} Processing meter: ${customer.consumerNumber}`, {
+          meterName: customer.meterName,
+        });
 
-      // Process all customers in this batch concurrently
-      const batchResults = await Promise.allSettled(
-        batch.map(async (customer) => {
-          const progress = `[${customers.indexOf(customer) + 1}/${customers.length}]`;
+        // 5a. Scrape data for this meter
+        const scrapedData = await scraperService.scrapeCustomerData(
+          customer.consumerNumber
+        );
 
-          try {
-            logger.info(`${progress} Processing meter: ${customer.consumerNumber}`, {
-              meterName: customer.meterName,
-            });
+        // 5b. Save to database
+        await saveScrapedData(
+          scrapedData,
+          customer.userId as string,
+          customer.meterName as string,
+          true // existingCustomer = true (we're updating)
+        );
 
-            // Scrape data for this meter
-            const scrapedData = await scraperService!.scrapeCustomerData(
-              customer.consumerNumber
-            );
+        successCount++;
+        results.push({
+          success: true,
+          consumerNumber: customer.consumerNumber as string,
+          meterName: customer.meterName as string,
+        });
 
-            // Save to database
-            await saveScrapedData(
-              scrapedData,
-              customer.userId as string,
-              customer.meterName as string,
-              true // existingCustomer = true (we're updating)
-            );
+        logger.info(
+          `${progress} Successfully updated meter: ${customer.consumerNumber}`
+        );
 
-            logger.info(
-              `${progress} Successfully updated meter: ${customer.consumerNumber}`
-            );
+        // Small delay between requests to avoid overwhelming the portal
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      } catch (customerError) {
+        failureCount++;
+        const errorMsg =
+          customerError instanceof Error
+            ? customerError.message
+            : 'Unknown error';
 
-            return {
-              success: true,
-              consumerNumber: customer.consumerNumber as string,
-              meterName: customer.meterName as string,
-            };
-          } catch (customerError) {
-            const errorMsg =
-              customerError instanceof Error
-                ? customerError.message
-                : 'Unknown error';
+        results.push({
+          success: false,
+          consumerNumber: customer.consumerNumber as string,
+          meterName: customer.meterName as string,
+          error: errorMsg,
+        });
 
-            logger.error(
-              `${progress} Failed to update meter: ${customer.consumerNumber}`,
-              { error: errorMsg }
-            );
+        logger.error(
+          `${progress} Failed to update meter: ${customer.consumerNumber}`,
+          { error: errorMsg }
+        );
 
-            return {
-              success: false,
-              consumerNumber: customer.consumerNumber as string,
-              meterName: customer.meterName as string,
-              error: errorMsg,
-            };
-          }
-        })
-      );
-
-      // Process batch results
-      batchResults.forEach((result) => {
-        if (result.status === 'fulfilled') {
-          if (result.value.success) {
-            successCount++;
-          } else {
-            failureCount++;
-          }
-          results.push(result.value);
-        } else {
-          failureCount++;
-          results.push({
-            success: false,
-            consumerNumber: 'unknown',
-            meterName: 'unknown',
-            error: result.reason?.message || 'Unknown error',
-          });
-        }
-      });
-
-      // Add delay between batches (except after the last batch)
-      if (i + BATCH_SIZE < customers.length) {
-        logger.info(`Waiting ${BATCH_DELAY}ms before next batch`);
-        await new Promise(resolve => setTimeout(resolve, BATCH_DELAY));
+        // Continue with next customer instead of stopping
+        continue;
       }
     }
 
