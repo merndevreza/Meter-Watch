@@ -100,7 +100,7 @@ async function initializeBrowser(): Promise<{ browser: Browser; page: Page }> {
     // Use chromium from @sparticuz/chromium on Vercel
     try {
       const chromium = await import('@sparticuz/chromium');
-      executablePath = await chromium.executablePath();
+      executablePath = await chromium.default.executablePath();
       logger.info('Using @sparticuz/chromium for Vercel environment');
     } catch (error) {
       logger.error('Failed to load @sparticuz/chromium', {
