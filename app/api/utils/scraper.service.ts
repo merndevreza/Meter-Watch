@@ -86,46 +86,59 @@ function handleScraperError(error: unknown): AppError {
 
 /**
  * Initialize Puppeteer browser
- * Uses @sparticuz/chromium for Vercel, or system Chrome for local development
+ * Uses Browserless.io for serverless/Vercel environments
+ * Falls back to local Chrome for development
  */
 async function initializeBrowser(): Promise<{ browser: Browser; page: Page }> {
   const puppeteer = await import('puppeteer');
   
-  // Detect if running on Vercel
+  // Detect if running on Vercel or using Browserless
   const isVercel = !!process.env.VERCEL;
+  const browserlessToken = process.env.BROWSERLESS_TOKEN;
   
-  let executablePath: string | undefined;
+  let browser: Browser;
   
-  if (isVercel) {
-    // Use chromium from @sparticuz/chromium on Vercel
+  if (isVercel || browserlessToken) {
+    // Use Browserless.io on Vercel or when token is configured
+    if (!browserlessToken) {
+      logger.error('BROWSERLESS_TOKEN not set but running on Vercel');
+      throw new AppError(
+        ErrorCode.SCRAPING_FAILED,
+        'Browserless.io token not configured',
+        500
+      );
+    }
+    
     try {
-      const chromium = await import('@sparticuz/chromium');
-      executablePath = await chromium.default.executablePath();
-      logger.info('Using @sparticuz/chromium for Vercel environment');
+      logger.info('Connecting to Browserless.io');
+      browser = await puppeteer.connect({
+        browserWSEndpoint: `wss://chrome.browserless.io?token=${browserlessToken}`,
+      });
+      logger.info('Connected to Browserless.io');
     } catch (error) {
-      logger.error('Failed to load @sparticuz/chromium', {
+      logger.error('Failed to connect to Browserless.io', {
         error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw new AppError(
         ErrorCode.SCRAPING_FAILED,
-        'Browser initialization failed on Vercel',
+        'Failed to connect to browser service',
         500
       );
     }
+  } else {
+    // Use local Chrome for development
+    browser = await puppeteer.launch({
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--disable-web-security',
+        '--disable-features=IsolateOrigins,site-per-process',
+      ],
+    });
   }
-  
-  const browser = await puppeteer.launch({
-    headless: true,
-    executablePath,
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-gpu',
-      '--disable-web-security',
-      '--disable-features=IsolateOrigins,site-per-process',
-    ],
-  });
 
   const page = await browser.newPage();
   
