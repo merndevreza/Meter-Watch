@@ -50,7 +50,7 @@ export const POST = async (request: Request) => {
       const verificationLink = `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/verify?token=${token}&email=${email}`;
 
       await resend.emails.send({
-         from: 'meterwatch@webdevreza.xyz',
+         from: process.env.EMAIL_FROM ?? "meterwatch@webdevreza.xyz",
          to: email,
          subject: 'Verify your account',
          html: `

@@ -34,7 +34,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }),
       Resend({
          apiKey: process.env.AUTH_RESEND_KEY,
-         from: "meterwatch@webdevreza.xyz",
+         from: process.env.EMAIL_FROM ?? "meterwatch@webdevreza.xyz",
       }),
       CredentialProvider({
          credentials: {
