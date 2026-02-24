@@ -21,15 +21,19 @@ const consoleFormat = winston.format.combine(
   })
 );
 
+const isVercel = !!process.env.VERCEL;
+const isProduction = process.env.NODE_ENV === 'production';
+
 const transports: winston.transport[] = [
-  // Console transport for development
+  // Console transport - always available
   new winston.transports.Console({
-    format: process.env.NODE_ENV === 'production' ? logFormat : consoleFormat,
+    format: isProduction ? logFormat : consoleFormat,
   }),
 ];
 
-// Add file transports in production
-if (process.env.NODE_ENV === 'production') {
+// Add file transports only in production on non-Vercel environments
+// (Vercel has read-only filesystem, logs go to console/stdout)
+if (isProduction && !isVercel) {
   transports.push(
     new winston.transports.File({
       filename: 'logs/error.log',
