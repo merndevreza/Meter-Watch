@@ -3,8 +3,6 @@
  * Single source of truth for all types in the application
  */
 
-import { Dictionary } from "./dictionary";
-
 // ============================================================================
 // BASE TYPES - Reusable type compositions
 // ============================================================================
@@ -249,65 +247,7 @@ export type NescoMeterDataType = {
   feederName: string;
   electricityOffice: string;
 };
-
-/**
- * Meter card buttons component props
- */
-export type MeterCardButtonsProps = {
-  dictionary: Dictionary;
-  onDeleteMeter: (consumerNumber: string) => void;
-  onThresholdUpdate: (consumerNumber: string, newThreshold: number) => void;
-  onRefreshUpdateMeters: (meter: NescoMeterDataType) => void;
-  consumerNumber: string;
-  currentThreshold: string;
-  meterName: string;
-  meterId: string;
-};
-
-/**
- * Add meter form props
- */
-export type AddMeterFormProps = {
-  meterName: string;
-  meterNumber: string;
-  sanctionLoad: string;
-  sanctionTariff: string;
-  meterType: string;
-  minimumRechargeThreshold: string;
-  meterInstallationDate: string;
-};
-
-/**
- * Edit meter form props
- */
-export type EditMeterFormProps = AddMeterFormProps & {
-  mongoId: string;
-  isActive: boolean;
-};
-
-/**
- * Delete confirmation modal props
- */
-export interface DeleteConfirmationModalProps {
-  title: string;
-  description: string;
-  onClose: () => void;
-  onDelete: () => void | Promise<void>;
-  isDeleting?: boolean;
-  isDeleted?: boolean;
-}
-
-/**
- * Threshold updater modal props
- */
-export interface ThresholdUpdaterModalProps {
-  dictionary: Dictionary;
-  currentThreshold: number | string;
-  consumerNumber: string;
-  onThresholdUpdate: (consumerNumber: string, newThreshold: number) => void;
-  setShowModal: (show: boolean) => void;
-}
-
+ 
 // ============================================================================
 // EXPORT ALIASES FOR BACKWARD COMPATIBILITY
 // ============================================================================

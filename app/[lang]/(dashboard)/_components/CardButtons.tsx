@@ -1,16 +1,24 @@
 "use client";
-import ModalPortal from '@/components/modals/ModalPortal';
 import { Button } from '@/components/ui/button';
-import { MeterCardButtonsProps, NescoMeterDataType, ScrapedData } from '@/types'; 
+import { NescoMeterDataType, ScrapedData } from '@/types';
 import Link from 'next/link';
-import { useState} from 'react'; 
-import ThresholdUpdaterModal from './ThresholdUpdaterModal';
-import { useParams } from 'next/navigation'; 
+import { useParams } from 'next/navigation';
 import RefreshButton from '@/components/Buttons/RefreshButton';
 import DeleteMeterButton from '@/components/Buttons/DeleteMeterButton';
+import UpdateThresholdButton from '@/components/Buttons/UpdateThresholdButton';
+import { Dictionary } from '@/types/dictionary';
 
-const CardButtons = ({ dictionary, consumerNumber, onDeleteMeter, onThresholdUpdate,  currentThreshold, meterName, meterId, onRefreshUpdateMeters }: MeterCardButtonsProps) => {
-   const [showThresholdModal, setShowThresholdModal] = useState(false);
+type MeterCardButtonsProps = {
+  dictionary: Dictionary;
+  onDeleteMeter: (consumerNumber: string) => void;
+  onThresholdUpdate: (consumerNumber: string, newThreshold: number) => void;
+  onRefreshUpdateMeters: (meter: NescoMeterDataType) => void;
+  consumerNumber: string;
+  currentThreshold: string;
+  meterName: string;
+  meterId: string;
+};
+const CardButtons = ({ dictionary, consumerNumber, onDeleteMeter, onThresholdUpdate, currentThreshold, meterName, meterId, onRefreshUpdateMeters }: MeterCardButtonsProps) => {
    const params = useParams();
    const lang = params.lang as string;
 
@@ -28,7 +36,7 @@ const CardButtons = ({ dictionary, consumerNumber, onDeleteMeter, onThresholdUpd
             id: meterId,
             consumerNumber: updatedCustomer.consumerNumber,
             customerName: updatedCustomer.customerName,
-            meterName: meterName,  
+            meterName: meterName,
             mobile: updatedCustomer.mobile,
             meterNumber: updatedCustomer.meterNumber,
             meterStatus: updatedCustomer.meterStatus,
@@ -43,7 +51,7 @@ const CardButtons = ({ dictionary, consumerNumber, onDeleteMeter, onThresholdUpd
             noticeMessage: notice.noticeMessage ?? null,
             feederName: updatedCustomer.feederName,
             electricityOffice: updatedCustomer.electricityOffice,
-         };  
+         };
          onRefreshUpdateMeters(updatedCustomerState);
       } catch (error) {
          console.error('Error updating meter data:', error);
@@ -57,23 +65,13 @@ const CardButtons = ({ dictionary, consumerNumber, onDeleteMeter, onThresholdUpd
                Details
             </Button>
          </Link>
-         <Button variant="secondary" onClick={() => setShowThresholdModal(true)} className={`flex-1 h-11 gap-2 text-sm font-bold shadow-md active:scale-95 transition-transform`}>
-            Update {dictionary.threshold}
-         </Button>
+         <UpdateThresholdButton className="flex-1 h-11 gap-2 text-sm font-bold shadow-md active:scale-95 transition-transform" dictionary={dictionary} consumerNumber={consumerNumber} currentThreshold={currentThreshold} onThresholdUpdate={onThresholdUpdate} />
          <div className="flex gap-2 w-full sm:w-auto">
-            <RefreshButton consumerNumber={consumerNumber} meterName={meterName} onRefreshMeter={onRefreshMeter} isShowLabel={false}  className="h-11 w-11 flex-1 sm:flex-none border-muted-foreground/20 hover:bg-accent"/> 
+            <RefreshButton consumerNumber={consumerNumber} meterName={meterName} onRefreshMeter={onRefreshMeter} isShowLabel={false} className="h-11 w-11 flex-1 sm:flex-none border-muted-foreground/20 hover:bg-accent" />
          </div>
          <div className="flex gap-2 w-full sm:w-auto">
-          <DeleteMeterButton consumerNumber={consumerNumber} onDeleteMeter={onDeleteMeter} dictionary={dictionary} className="h-11 w-11 flex-1 sm:flex-none text-destructive border-destructive/20 hover:bg-destructive/5" />
+            <DeleteMeterButton consumerNumber={consumerNumber} onDeleteMeter={onDeleteMeter} dictionary={dictionary} className="h-11 w-11 flex-1 sm:flex-none text-destructive border-destructive/20 hover:bg-destructive/5" />
          </div>
-         {
-            showThresholdModal && (
-               <ModalPortal setShowModal={setShowThresholdModal}>
-                  <ThresholdUpdaterModal dictionary={dictionary} setShowModal={setShowThresholdModal} onThresholdUpdate={onThresholdUpdate} consumerNumber={consumerNumber} currentThreshold={currentThreshold} />
-               </ModalPortal>
-            )
-         }
-       
       </div>
    );
 };

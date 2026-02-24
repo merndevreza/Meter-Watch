@@ -13,12 +13,4 @@ export type ThresholdUpdaterModalProps = {
     onThresholdUpdate: (consumerNumber: string, newThreshold: number) => void;
     setShowModal: (state: boolean) => void; 
 };
-
-export type DeleteConfirmationModalProps = {
-    title: string;
-    description: string;
-    onClose: () => void;
-    onDelete: () => void;
-    isDeleting?: boolean;
-    isDone?: boolean;
-}
+ 

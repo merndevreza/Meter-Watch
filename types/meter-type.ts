@@ -30,17 +30,3 @@ export type MeterCardButtonsProps = {
    currentThreshold:string;
    meterName: string;
 }
-
-export type AddMeterFormProps = {
-   meterName: string;
-   meterNumber: string;
-   sanctionLoad: string;
-   sanctionTariff: string;
-   meterType: string;
-   minimumRechargeThreshold: string;
-   meterInstallationDate: string;
-}
-export type EditMeterFormProps = AddMeterFormProps & {
-   mongoId: string;
-   isActive: boolean;
-}

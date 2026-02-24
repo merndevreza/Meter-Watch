@@ -1,7 +1,15 @@
 "use client";
 import { Info, CheckCircle } from 'lucide-react';
 import { Button } from '../ui/button';
-import { DeleteConfirmationModalProps } from '@/types';
+
+interface DeleteConfirmationModalProps {
+   title: string;
+   description: string;
+   onClose: () => void;
+   onDelete: () => void | Promise<void>;
+   isDeleting?: boolean;
+   isDeleted?: boolean;
+}
 
 const DeleteConfirmationModal = ({ title, description, onClose, onDelete, isDeleting = false, isDeleted = false }: DeleteConfirmationModalProps) => {
    if (isDeleted) {
@@ -20,8 +28,8 @@ const DeleteConfirmationModal = ({ title, description, onClose, onDelete, isDele
       return (
          <div className='text-center space-y-5'>
             <div className='inline-block'>
-               <div className='inline-flex items-center justify-center w-[50px] h-[50px]'>
-                  <div className='animate-spin h-[50px] w-[50px] border-4 border-red-200 border-t-red-600 rounded-full'></div>
+               <div className='inline-flex items-center justify-center w-12.5 h-12.5'>
+                  <div className='animate-spin h-12.5 w-12.5 border-4 border-red-200 border-t-red-600 rounded-full'></div>
                </div>
             </div>
             <h2 className='text-3xl'>Deleting...</h2>

@@ -31,7 +31,7 @@ const MeterCardsWrapper = ({ dictionary, metersData = [] }: { dictionary: Dictio
       const updatedMeters = allMeters.filter(meter => meter.consumerNumber !== consumerNumber);
       setAllMeters(updatedMeters);
    }
-   const onThresholdUpdate = (consumerNumber: string, newThreshold: number) => {
+   const onThresholdUpdate = (consumerNumber: string, newThreshold: number) => {      
       const updatedMeters = allMeters.map(meter => {
          if (meter.consumerNumber === consumerNumber) {
             return { ...meter, minimumRechargeAmount: String(newThreshold) };

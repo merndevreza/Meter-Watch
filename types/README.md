@@ -28,9 +28,7 @@ Raw data types as scraped from the NESCO portal:
 #### Component Props Types
 React component prop types:
 - **`NescoMeterDataType`** - Meter card data for frontend display
-- **`MeterCardButtonsProps`** - Meter card buttons component props
-- **`AddMeterFormProps`** - Add meter form props
-- **`EditMeterFormProps`** - Edit meter form props
+- **`MeterCardButtonsProps`** - Meter card buttons component props 
 - **`DeleteConfirmationModalProps`** - Delete confirmation modal props
 - **`ThresholdUpdaterModalProps`** - Threshold updater modal props
 

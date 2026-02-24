@@ -6,10 +6,17 @@ import {
    FieldLabel,
 } from "@/components/ui/field";
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { ThresholdUpdaterModalProps } from '@/types';
+import { Button } from '@/components/ui/button'; 
 import { toast } from 'sonner';
+import { Dictionary } from '@/types/dictionary';
 
+type ThresholdUpdaterModalProps = {
+  dictionary: Dictionary;
+  currentThreshold: number | string;
+  consumerNumber: string;
+  onThresholdUpdate: (consumerNumber: string, newThreshold: number) => void;
+  setShowModal: (show: boolean) => void;
+}
 const ThresholdUpdaterModal = ({ dictionary, currentThreshold, consumerNumber, onThresholdUpdate, setShowModal }: ThresholdUpdaterModalProps) => {
    const [threshold, setThreshold] = useState<number>(Number(currentThreshold));
 
@@ -32,7 +39,7 @@ const ThresholdUpdaterModal = ({ dictionary, currentThreshold, consumerNumber, o
          const data = await response.json();
          if (data.success) {
             toast.success(data.message);
-            onThresholdUpdate(consumerNumber, Number(amount));
+            onThresholdUpdate(consumerNumber, Number(amount));             
             setShowModal(false);
             setThreshold(Number(amount));
          } else {

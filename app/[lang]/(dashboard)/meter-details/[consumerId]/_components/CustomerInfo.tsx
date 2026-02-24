@@ -3,11 +3,9 @@ import {
    ArrowLeft,
    Zap,
    User,
-   CalendarClock,
-   Wallet
+   CalendarClock, 
 } from "lucide-react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import Link from "next/link"; 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -18,6 +16,7 @@ import { ScrapedData, ScrapedMonthlyConsumption, ScrapedRechargeRecord } from "@
 import { useRouter } from "next/navigation";
 import { Dictionary } from "@/types/dictionary";
 import DeleteMeterButton from "@/components/Buttons/DeleteMeterButton";
+import UpdateThresholdButton from "@/components/Buttons/UpdateThresholdButton";
 
 type CustomerInfoProps = {
    customerData: NescoMeterDataType;
@@ -84,6 +83,13 @@ export default function CustomerInfo({ customerData, chartData, setCustomerData,
       setRechargeHistoryData([]);
       router.push('/');
    };
+   const onThresholdUpdate = (_consumerNumber: string, newThreshold: number) => {
+      const updatedMeters = {
+         ...customerData,
+         minimumRechargeAmount: String(newThreshold),
+      }
+      setCustomerData(updatedMeters);
+   }
    return (
       <div className=" w-full space-y-8">
 
@@ -100,10 +106,10 @@ export default function CustomerInfo({ customerData, chartData, setCustomerData,
             {/* Actions Toolbar */}
             <div className="flex items-center gap-2">
                <RefreshButton consumerNumber={customerData.consumerNumber} meterName={customerData.meterName} onRefreshMeter={onRefreshMeter} isShowLabel={true} className="flex gap-2" />
-               <Button variant="outline" size="sm" className="hidden sm:flex gap-2">
-                  <Wallet className="h-4 w-4" /> Update Threshold
-               </Button>
-               <DeleteMeterButton consumerNumber={customerData.consumerNumber} onDeleteMeter={onDeleteMeter} dictionary={dictionary} className="flex gap-2" isShowLabel={true} /> 
+
+               <UpdateThresholdButton className="flex gap-2" dictionary={dictionary} consumerNumber={customerData.consumerNumber} currentThreshold={customerData.minimumRechargeAmount} onThresholdUpdate={onThresholdUpdate} isShowIcon={true} variant="outline" />
+
+               <DeleteMeterButton consumerNumber={customerData.consumerNumber} onDeleteMeter={onDeleteMeter} dictionary={dictionary} className="flex gap-2" isShowLabel={true} />
             </div>
          </div>
 
