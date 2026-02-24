@@ -95,6 +95,7 @@ async function initializeBrowser(): Promise<{ browser: Browser; page: Page }> {
   // Detect if running on Vercel or using Browserless
   const isVercel = !!process.env.VERCEL;
   const browserlessToken = process.env.BROWSERLESS_TOKEN;
+  console.log("browserlessToken check", browserlessToken);
   
   let browser: Browser;
   
