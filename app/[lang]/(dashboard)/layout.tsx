@@ -1,5 +1,5 @@
 import { notFound, redirect } from 'next/navigation';
-import { getDictionary, hasLocale } from "../dictionaries/dictionaries";
+import { hasLocale } from "../dictionaries/dictionaries";
 import { auth } from '@/auth';
 import { AppSidebar } from "@/components/sidebar/app-sidebar"
 import { SiteHeader } from "@/components/header/site-header"
@@ -19,10 +19,6 @@ export default async function DashboardLayout({
    const { lang } = await params;
 
    if (!hasLocale(lang)) notFound();
-
-   const currentLang = lang as "en" | "bn";
-
-   const dictionary = await getDictionary(currentLang);
    const session = await auth();
 
    if (!session?.user) {
@@ -44,7 +40,7 @@ export default async function DashboardLayout({
          <AppSidebar lang={lang} user={session?.user as User} />
          <SidebarInset>
             <SiteHeader lang={lang} user={session?.user as User} />
-            <main className='bg-muted/20 p-6 md:p-10 '>
+            <main className='bg-muted/20 p-6 md:p-10 min-h-screen'>
                {children}
             </main>
          </SidebarInset>
