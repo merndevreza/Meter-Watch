@@ -86,12 +86,37 @@ function handleScraperError(error: unknown): AppError {
 
 /**
  * Initialize Puppeteer browser
+ * Uses @sparticuz/chromium for Vercel, or system Chrome for local development
  */
 async function initializeBrowser(): Promise<{ browser: Browser; page: Page }> {
   const puppeteer = await import('puppeteer');
   
+  // Detect if running on Vercel
+  const isVercel = !!process.env.VERCEL;
+  
+  let executablePath: string | undefined;
+  
+  if (isVercel) {
+    // Use chromium from @sparticuz/chromium on Vercel
+    try {
+      const chromium = await import('@sparticuz/chromium');
+      executablePath = await chromium.executablePath();
+      logger.info('Using @sparticuz/chromium for Vercel environment');
+    } catch (error) {
+      logger.error('Failed to load @sparticuz/chromium', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+      throw new AppError(
+        ErrorCode.SCRAPING_FAILED,
+        'Browser initialization failed on Vercel',
+        500
+      );
+    }
+  }
+  
   const browser = await puppeteer.launch({
     headless: true,
+    executablePath,
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
