@@ -6,8 +6,8 @@ import { metrics } from '@/lib/metrics';
 import { rateLimiter } from '@/lib/rate-limiter';
 import { AppError, ErrorCode } from '@/lib/errors';
 import { ScrapedData } from '@/types';
-import { createScraperService } from './utils/scraper.service';
-import { saveScrapedData } from './utils/database.utils';
+import { createScraperService } from '../utils/scraper.service';
+import { saveScrapedData } from '../utils/database.utils';
 
 /**
  * Request validation schema

@@ -18,9 +18,7 @@ export function NavMain({
     icon: React.ElementType
   }[]
 }) {
-  const pathname = usePathname()
-  console.log("path", pathname);
-
+  const pathname = usePathname()  
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
@@ -28,7 +26,7 @@ export function NavMain({
           {items.map((item) => (
             <Link key={item.title} href={item.url}>
               <SidebarMenuItem className={`${pathname === item.url || pathname === `${item.url}/`? "bg-sidebar-accent rounded-lg":""}`}>
-                <SidebarMenuButton size="lg" tooltip={item.title}>
+                <SidebarMenuButton className="cursor-pointer" size="lg" tooltip={item.title}>
                   {item.icon && <item.icon />}
                   <span className="text-[16px]">{item.title}</span>
                 </SidebarMenuButton>

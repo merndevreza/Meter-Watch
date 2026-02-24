@@ -8,7 +8,7 @@ import {
   extractMonthlyConsumption,
   extractNotice,
   extractRechargeHistory,
-} from '../utils/scraper.utils';
+} from './scraper.utils';
 
 const NESCO_PORTAL_URL = 'https://customer.nesco.gov.bd/pre/panel';
 const MAX_RETRIES = 3;
