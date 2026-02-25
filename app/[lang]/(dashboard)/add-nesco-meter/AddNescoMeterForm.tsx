@@ -38,13 +38,15 @@ const AddNescoMeterForm = ({ dictionary, lang }: { dictionary: Dictionary; lang:
                body: JSON.stringify({ consumerNumber, meterName, existingCustomer: false }),
             });
             const result = await response.json();
+            console.log("Response result:", result);
+            
             if (result.success) {
                toast.success("Meter added successfully", { position: "top-right" })
                setTimeout(() => {
                   router.push(`/${lang}`);
                }, 1000);
             } else {
-               setError(result.message);
+               setError(result.error.message || "Failed to add meter");
             }
          } catch (error) {
             console.log("error", error);
@@ -58,7 +60,7 @@ const AddNescoMeterForm = ({ dictionary, lang }: { dictionary: Dictionary; lang:
             <CardTitle className="text-2xl">Add New Meter</CardTitle>
          </CardHeader>
          <CardContent>
-            {error && <div className="mb-4 text-sm text-red-500">{error}</div>}
+            {error && <div className="mb-4 text-sm text-red-500 text-center p-3 border-dashed bg-red-500/10 rounded">{error}</div>}
             <form onSubmit={handleScrapping}>
                <FieldGroup>
                   <Field>

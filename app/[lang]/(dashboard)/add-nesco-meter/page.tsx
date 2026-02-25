@@ -4,18 +4,17 @@ import { notFound } from 'next/navigation';
 import AddNescoMeterForm from './AddNescoMeterForm';
 import { Dictionary } from '@/types/dictionary';
 
-export default async function Page({ 
+export default async function Page({
   params
-}: { 
+}: {
   params: Promise<{ lang: "en" | "bn" }>;
 }) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
   const dictionary = await getDictionary(lang);
-   return (
-       <div className="w-full max-w-xl mx-auto px-6">
+  return (
+    <div className="w-full max-w-xl mx-auto px-6">
       <AddNescoMeterForm dictionary={dictionary as Dictionary} lang={lang} />
     </div>
-   );
+  );
 };
- 

@@ -26,6 +26,7 @@ export enum ErrorCode {
   
   // Generic errors
   INTERNAL_ERROR = 'INTERNAL_ERROR',
+  DUPLICATE_CUSTOMER = 'DUPLICATE_CUSTOMER',
 }
 
 /**

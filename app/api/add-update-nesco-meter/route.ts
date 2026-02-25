@@ -8,6 +8,7 @@ import { AppError, ErrorCode } from '@/lib/errors';
 import { ScrapedData } from '@/types';
 import { createScraperService } from '../utils/scraper.service';
 import { saveScrapedData } from '../utils/database.utils';
+import { Customer } from '@/database/models/customer-model';
 
 /**
  * Request validation schema
@@ -66,7 +67,19 @@ export async function POST(request: Request) {
       userId,
       consumerNumber: validatedData.consumerNumber,
     });
+    //check if the user has already added this consumer number
+    const existingCustomer = await Customer.findOne({
+      userId,
+      consumerNumber: validatedData.consumerNumber,
+    });
 
+    if (existingCustomer && !validatedData.existingCustomer) {
+      throw new AppError(
+        ErrorCode.DUPLICATE_CUSTOMER,
+        'This consumer number is already added',
+        409
+      );
+    }
     // 4. Initialize scraper service
     scraperService = await createScraperService();
 
