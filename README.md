@@ -11,13 +11,13 @@
   - Supports Credentials, OAuth (Google), and Magic Links.
   - **Mandatory Email Verification:** Real-world email verification flow must be completed to access the dashboard.
 
-- **📊 Meter Management (CRUD)**
-  - Add, edit, and delete multiple meters per account.
+- **📊 NESCO Meter Management (CRUD)**
+  - Add, edit, and delete multiple NESCO meters per account.
   - Set custom **Minimum Balance Thresholds** for each meter. 
 
 - **⏰ Smart Automated Alerts**
   - **Visual Cues:** Meters turn red/highlighted when the balance falls below the user-defined limit.
-  - **Cron Jobs:** Integrated with **Vercel Cron Jobs** to scan balances daily at **11:59 PM BST**.
+  - **Cron Jobs:** Integrated with **Vercel Cron Jobs** to update meters data by scraping from original site daily at **11:59 PM BST**.
   - **Email Notifications:** Automatic alert emails sent via **Resend** to users with low-balance meters.
 
 - **🌍 Premium UX/UI**
@@ -29,16 +29,15 @@
 
 ## 🛠️ Tech Stack
 
-| Layer | Technology |
-| :--- | :--- |
-| **Framework** | Next.js 16 (App Router), React 19 |
-| **Language** | TypeScript |
-| **Database** | MongoDB (Mongoose ODM) |
-| **Auth** | NextAuth.js v5 |
-| **Styling** | Tailwind CSS, Shadcn/UI |
-| **State/Forms** | React Hook Form + Zod |
-| **Email/Cron** | Resend, Vercel Cron |
-
+- Next.js 16
+- React 19
+- TypeScript
+- MongoDB (Mongoose ODM)
+- NextAuth.js v5
+- Tailwind CSS, Shadcn/UI
+- React Hook Form + Zod
+- Resend, Vercel Cron
+- Puppeteer, Cheerio, Browserless.io
 ---
 
 ## ⚙️ Installation & Setup
@@ -55,3 +54,5 @@
 - AUTH_GITHUB_SECRET
 - AUTH_RESEND_KEY
 - CRON_SECRET 
+- BROWSERLESS_TOKEN
+- EMAIL_FROM
