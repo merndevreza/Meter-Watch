@@ -1,18 +1,26 @@
 # ⚡ Meter Watch
 
-**Meter Watch** is a secure, full-stack dashboard built to monitor electric meter balances for NESCO users. It bridges the gap between raw utility data and user-centric monitoring with automated alerts, multi-meter tracking, and a modern, responsive interface.
+**Meter Watch** is a full-stack dashboard designed for NESCO users to easily monitor multiple electric meter balances in one place. It provides a modern, responsive interface with visual insights through graphs and tables, highlights low balances based on user-defined thresholds, sends automated email alerts, and updates meter data daily for accurate tracking.
+
+---
+## 🌐 Data Source
+
+Meter data is securely collected by scraping from the official prepaid customer portal of  
+**[Northern Electricity Supply Company Limited (NESCO)](https://customer.nesco.gov.bd/pre/panel)**.
+
+> 🔗 Source: https://customer.nesco.gov.bd/pre/panel
 
 ---
 
 ## 🚀 Features
 
-- **🔐 Robust Authentication**
-  - Powered by **NextAuth.js v5 (Beta)**.
-  - Supports Credentials, OAuth (Google), and Magic Links.
+- **🔐 Authentication**
+  - Powered by **NextAuth.js v5**.
+  - Supports Credentials, OAuth (Google, Github), and Magic Links.
   - **Mandatory Email Verification:** Real-world email verification flow must be completed to access the dashboard.
 
 - **📊 NESCO Meter Management (CRUD)**
-  - Add, edit, and delete multiple NESCO meters per account.
+  - Add, update, and delete multiple NESCO meters per account.
   - Set custom **Minimum Balance Thresholds** for each meter. 
 
 - **⏰ Smart Automated Alerts**
@@ -56,3 +64,22 @@
 - CRON_SECRET 
 - BROWSERLESS_TOKEN
 - EMAIL_FROM
+---
+
+## 🧪 Sample Consumer Numbers
+
+The following NESCO consumer numbers can be used for testing purposes:
+
+- `32016951`
+- `32016952`
+- `32016953`
+- `32016954`
+- `32016955`
+- `32016956`
+- `32016957`
+- `32016965`
+- `32016966`
+- `32016967`
+- `32016968`
+---
+> This project is **not affiliated with** Northern Electricity Supply Company Limited (NESCO).
