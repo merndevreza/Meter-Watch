@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/update-meters",
       "schedule": "59 17 * * *"
+    },
+    {
+      "path": "/api/cron/threshold-email-notification",
+      "schedule": "59 19 * * *"
     }
   ]
 }
