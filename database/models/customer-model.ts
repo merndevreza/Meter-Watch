@@ -129,7 +129,7 @@ const CustomerSchema: Schema = new Schema(
     userId: {
       type: Schema.Types.ObjectId,
       required: [true, 'User ID is required'],
-      ref: 'Users',
+      ref: 'User',
       index: true,
     },
     lastScraped: {
