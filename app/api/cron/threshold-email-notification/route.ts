@@ -17,6 +17,10 @@ export async function GET(request: Request) {
 
     await connectMongo();
 
+    // Force Users model registration before populate runs.
+    // Next.js tree-shaking drops unused imports, so we must reference it explicitly.
+    void Users;
+
     // 2. Find customers where minimumRechargeAmount >= remainingBalance
     const lowBalanceCustomers = await Customer.find({
       $expr: { $gte: ["$minimumRechargeAmount", "$remainingBalance"] }
