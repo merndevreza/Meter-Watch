@@ -4,8 +4,10 @@
  * Can be integrated with monitoring services like Datadog, New Relic, etc.
  */
 
+import { Types } from "mongoose";
+
 interface MetricTags {
-  [key: string]: string | number | boolean;
+  [key: string]: string | number | boolean | Types.ObjectId;
 }
 
 class MetricsService {

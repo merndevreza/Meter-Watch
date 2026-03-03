@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Model } from 'mongoose';
+import mongoose, { Schema, Document, Model, Types } from 'mongoose';
 import { RechargeHistory as RechargeHistoryType } from '@/types';
 
 /**
@@ -20,7 +20,7 @@ const RechargeHistorySchema: Schema = new Schema(
       trim: true,
     },
     userId: {
-      type: String,
+      type: Schema.Types.ObjectId,
       required: [true, 'User ID is required'],
       index: true,
     },
@@ -153,7 +153,7 @@ RechargeHistorySchema.methods.toNumeric = function() {
 
 // Static method to get recent recharges
 RechargeHistorySchema.statics.getRecentRecharges = function(
-  userId: string,
+  userId: Types.ObjectId,
   consumerNumber: string,
   limit: number = 10
 ) {
@@ -165,7 +165,7 @@ RechargeHistorySchema.statics.getRecentRecharges = function(
 
 // Static method to get recharges by date range
 RechargeHistorySchema.statics.getRechargesByDateRange = function(
-  userId: string,
+  userId: Types.ObjectId,
   consumerNumber: string,
   startDate: string,
   endDate: string

@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import { Customer } from '@/database/models/customer-model';
 import connectMongo from '@/database/services/connectMongo';
 import { replaceMongoIdInArray } from '@/lib/replaceMongoID'; 
+import { Types } from 'mongoose';
 
 // get all meters of Logged in user
 export async function fetchNescoMeters() {
@@ -13,7 +14,9 @@ export async function fetchNescoMeters() {
       }
 
       await connectMongo();
-      const meters = await Customer.find({ userId: session.user.id })
+      const userId = new Types.ObjectId(session.user.id);
+
+      const meters = await Customer.find({ userId })
          .sort({ createdAt: -1 })
          .lean();
 

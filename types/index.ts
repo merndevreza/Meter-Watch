@@ -3,6 +3,8 @@
  * Single source of truth for all types in the application
  */
 
+import { Types } from "mongoose";
+
 // ============================================================================
 // BASE TYPES - Reusable type compositions
 // ============================================================================
@@ -20,7 +22,7 @@ type EntityMetadata = {
  * Common references to user and meter
  */
 type EntityReferences = {
-  userId: string;
+  userId: Types.ObjectId;
   consumerNumber: string;
 };
 
@@ -88,7 +90,7 @@ type CoreCustomerInfo = {
  * Used by: Database, API, Frontend
  */
 export interface Customer extends EntityMetadata, CoreCustomerInfo {
-  userId: string;
+  userId: Types.ObjectId;
 
   // Meter Information
   meterName: string;

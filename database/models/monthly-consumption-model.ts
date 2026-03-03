@@ -102,7 +102,7 @@ const MonthlyConsumptionSchema = new Schema<IMonthlyConsumption>(
       index: true,
     },
     userId: {
-      type: String,
+      type: Schema.Types.ObjectId,
       required: [true, 'User ID is required'],
       index: true,
     },

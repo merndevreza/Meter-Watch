@@ -11,6 +11,7 @@ import { MonthlyConsumptionModel } from '@/database/models/monthly-consumption-m
 import connectMongo from '@/database/services/connectMongo';
 import { logger } from '@/lib/logger';
 import { AppError, ErrorCode } from '@/lib/errors';
+import { Types } from 'mongoose';
 
 export interface SaveResult {
   summary: SavedDataSummary;
@@ -22,7 +23,7 @@ export interface SaveResult {
  */
 async function saveCustomerData(
   customerData: ScrapedCustomerData,
-  userId: string,
+  userId: Types.ObjectId,
   meterName: string,
   notice: { hasNotice: boolean; noticeMessage: string | null },
   existingCustomer: boolean
@@ -76,7 +77,7 @@ async function saveCustomerData(
 async function saveRechargeHistory(
   rechargeHistory: ScrapedRechargeRecord[],
   consumerNumber: string,
-  userId: string
+  userId: Types.ObjectId
 ): Promise<{ saved: number; skipped: number; errors?: string[] }> {
   if (rechargeHistory.length === 0) {
     return { saved: 0, skipped: 0 };
@@ -131,7 +132,7 @@ async function saveRechargeHistory(
 async function saveMonthlyConsumption(
   consumptionData: ScrapedMonthlyConsumption[],
   consumerNumber: string,
-  userId: string
+  userId: Types.ObjectId
 ): Promise<{ saved: number; skipped: number; errors?: string[] }> {
   if (consumptionData.length === 0) {
     return { saved: 0, skipped: 0 };
@@ -245,7 +246,7 @@ async function saveMonthlyConsumption(
  */
 export async function saveScrapedData(
   scrapedData: ScrapedData,
-  userId: string,
+  userId: Types.ObjectId,
   meterName: string,
   existingCustomer: boolean
 ): Promise<SaveResult> {

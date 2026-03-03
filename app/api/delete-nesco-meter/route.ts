@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { Types } from 'mongoose';
 import { auth } from '@/auth';
 import connectMongo from '@/database/services/connectMongo';
 import { Customer } from '@/database/models/customer-model';
@@ -20,12 +21,12 @@ const DeleteMeterSchema = z.object({
 
 /**
  * Delete Customer Meter API
- * 
+ *
  * This endpoint deletes a customer meter and all associated data:
  * - Customer record
  * - All recharge history
  * - All monthly consumption records
- * 
+ *
  * Only the authenticated user who owns the meter can delete it.
  * This is a destructive operation and cannot be undone.
  */
@@ -43,14 +44,14 @@ export async function DELETE(request: Request) {
       );
     }
 
-    const userId = session.user.id;
+    const userId = new Types.ObjectId(session.user.id);
 
     // 2. Validate request body
     const body = await request.json();
     const validatedData = DeleteMeterSchema.parse(body);
 
     logger.info('Deleting meter', {
-      userId,
+      userId: userId.toString(),
       consumerNumber: validatedData.consumerNumber,
     });
 
@@ -89,11 +90,11 @@ export async function DELETE(request: Request) {
 
     // 6. Track metrics
     const duration = Date.now() - startTime;
-    metrics.increment('meter.delete.success', { userId });
+    metrics.increment('meter.delete.success', { userId: userId.toString() });
     metrics.timing('meter.delete.duration', duration);
 
     logger.info('Meter deleted successfully', {
-      userId,
+      userId: userId.toString(),
       consumerNumber: validatedData.consumerNumber,
       deletedRecords: {
         customer: customerResult.deletedCount,

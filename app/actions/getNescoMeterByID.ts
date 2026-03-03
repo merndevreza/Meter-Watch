@@ -6,6 +6,7 @@ import { RechargeHistory } from '@/database/models/recharge-history-model';
 import connectMongo from '@/database/services/connectMongo';
 import { replaceMongoIdInArray, replaceMongoIdInObject } from '@/lib/replaceMongoID';
 import { NescoMeterDataType, MonthlyConsumptionType, RechargeHistoryType } from '@/types';
+import { Types } from 'mongoose';
 
 type GetMeterResponse = {
    success: boolean;
@@ -29,7 +30,9 @@ export async function getNescoMeterByID(consumerNumber: string): Promise<GetMete
       }
 
       await connectMongo();
-      const customer = await Customer.findOne({ userId: session.user.id, consumerNumber: consumerNumber })
+
+      const userId = new Types.ObjectId(session.user.id);
+      const customer = await Customer.findOne({ userId, consumerNumber })
          .sort({ createdAt: -1 })
          .lean();
 

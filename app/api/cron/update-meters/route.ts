@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { Types } from "mongoose";
 import { Customer } from "@/database/models/customer-model";
 import connectMongo from "@/database/services/connectMongo";
 import { createScraperService } from "@/app/api/utils/scraper.service";
@@ -26,10 +27,10 @@ interface CronJobSummary {
 
 /**
  * Cron Job: Update all meters data daily
- * 
+ *
  * This endpoint scrapes data for ALL customer meters and updates them in the database.
  * Runs daily as configured in vercel.json
- * 
+ *
  * Rate limiting: Only processes 1 meter at a time to avoid overwhelming the NESCO portal
  * Controlled by Vercel cron scheduling - only called once per day
  */
@@ -117,13 +118,13 @@ export async function GET(request: Request) {
 
         // 5a. Scrape data for this meter
         const scrapedData = await scraperService.scrapeCustomerData(
-          customer.consumerNumber
+          customer.consumerNumber as string
         );
 
-        // 5b. Save to database
+        // 5b. Save to database — userId is now a Types.ObjectId
         await saveScrapedData(
           scrapedData,
-          customer.userId as string,
+          customer.userId as Types.ObjectId,
           customer.meterName as string,
           true // existingCustomer = true (we're updating)
         );

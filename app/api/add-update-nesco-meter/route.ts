@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { Types } from 'mongoose';
 import { auth } from '@/auth';
 import { logger } from '@/lib/logger';
 import { metrics } from '@/lib/metrics';
@@ -26,10 +27,10 @@ const ScrapeRequestSchema = z.object({
 
 /**
  * NESCO Data Scraper API
- * 
+ *
  * This endpoint scrapes customer information from the NESCO prepaid portal
  * and stores it in MongoDB.
- * 
+ *
  * Rate limited to prevent abuse.
  */
 export async function POST(request: Request) {
@@ -47,10 +48,10 @@ export async function POST(request: Request) {
       );
     }
 
-    const userId = session.user.id;
+    const userId = new Types.ObjectId(session.user.id);
 
     // 2. Rate limiting
-    const rateLimitResult = await rateLimiter.check(userId, 'scrape');
+    const rateLimitResult = await rateLimiter.check(session.user.id, 'scrape');
     if (!rateLimitResult.success) {
       throw new AppError(
         ErrorCode.RATE_LIMIT_EXCEEDED,
@@ -64,10 +65,11 @@ export async function POST(request: Request) {
     const validatedData = ScrapeRequestSchema.parse(body);
 
     logger.info('Scraping started', {
-      userId,
+      userId: userId.toString(),
       consumerNumber: validatedData.consumerNumber,
     });
-    //check if the user has already added this consumer number
+
+    // Check if the user has already added this consumer number
     const existingCustomer = await Customer.findOne({
       userId,
       consumerNumber: validatedData.consumerNumber,
@@ -80,6 +82,7 @@ export async function POST(request: Request) {
         409
       );
     }
+
     // 4. Initialize scraper service
     scraperService = await createScraperService();
 
@@ -112,11 +115,11 @@ export async function POST(request: Request) {
 
     // 7. Track metrics
     const duration = Date.now() - startTime;
-    metrics.increment('scraping.success', { userId });
+    metrics.increment('scraping.success', { userId: userId.toString() });
     metrics.timing('scraping.duration', duration);
 
     logger.info('Scraping completed', {
-      userId,
+      userId: userId.toString(),
       consumerNumber: validatedData.consumerNumber,
       duration,
       saved: savedDataResult.summary,

@@ -6,6 +6,7 @@ import { Customer } from '@/database/models/customer-model';
 import { logger } from '@/lib/logger';
 import { metrics } from '@/lib/metrics';
 import { AppError, ErrorCode } from '@/lib/errors';
+import { Types } from 'mongoose';
 
 /**
  * Request validation schema
@@ -39,7 +40,7 @@ export async function PUT(request: Request) {
       );
     }
 
-    const userId = session.user.id;
+    const userId = new Types.ObjectId(session.user.id);
 
     // 2. Validate request body
     const body = await request.json();
