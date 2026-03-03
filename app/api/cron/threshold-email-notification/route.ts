@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { Resend } from 'resend';
 import connectMongo from "@/database/services/connectMongo";
 import { Customer } from "@/database/models/customer-model";
+import { Users } from "@/database/models/user-model";
 import { logger } from "@/lib/logger";
 
 const resend = new Resend(process.env.AUTH_RESEND_KEY);
